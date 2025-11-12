@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 
 class CategoryWidget extends StatelessWidget {
   final Category category;
+  final bool selected;
 
-  const CategoryWidget({super.key, required this.category});
+  const CategoryWidget({super.key, required this.category,this.selected = false,});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,10 @@ class CategoryWidget extends StatelessWidget {
       decoration: BoxDecoration(
         // color: AppColors.main,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.grey, width: 1),
+        border: Border.all(
+          color: selected ? AppColors.main : AppColors.grey,
+          width: 1
+        ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

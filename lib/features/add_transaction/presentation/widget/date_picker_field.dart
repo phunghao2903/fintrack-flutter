@@ -11,6 +11,7 @@ class DatePickerField extends StatelessWidget {
 
   /// Bật chọn giờ sau khi chọn ngày
   final bool pickTime;
+  final ValueChanged<String>? onDatePicked;
 
   /// Múi giờ 24h hay 12h không ảnh hưởng showTimePicker,
   /// nhưng bạn có thể format lại text theo ý (ở dưới).
@@ -20,6 +21,7 @@ class DatePickerField extends StatelessWidget {
     required this.label,
     this.hint,
     this.pickTime = false,
+    this.onDatePicked, 
   });
 
   Future<void> _pickDateTime(BuildContext context) async {
@@ -43,7 +45,9 @@ class DatePickerField extends StatelessWidget {
     if (date == null) return;
 
     if (!pickTime) {
-      controller.text = _formatDate(date);
+      final value = _formatDate(date);
+      controller.text = value;
+      onDatePicked?.call(value);            // <-- GỌI CALLBACK
       return;
     }
 
@@ -64,7 +68,9 @@ class DatePickerField extends StatelessWidget {
     );
     if (time == null) {
       // Người dùng hủy chọn giờ -> vẫn ghi mỗi ngày
-      controller.text = _formatDate(date);
+      final value = _formatDate(date);
+      controller.text = value;
+      onDatePicked?.call(value);            // <-- GỌI CALLBACK
       return;
     }
 
@@ -75,8 +81,9 @@ class DatePickerField extends StatelessWidget {
       time.hour,
       time.minute,
     );
-
-    controller.text = _formatDateTime(dt); // yyyy-MM-dd HH:mm
+    final value = _formatDateTime(dt);
+    controller.text = value;
+    onDatePicked?.call(value);   // yyyy-MM-dd HH:mm
   }
 
   String _two(int n) => n.toString().padLeft(2, '0');

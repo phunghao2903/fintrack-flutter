@@ -15,7 +15,7 @@ class MoneySourceField extends StatelessWidget {
     this.onSelected,
   });  
   Future<void> _openSheet(BuildContext context) async {
-    final result = await MoneySourceBottomSheet.show(context);
+    final result = await MoneySourceBottomSheet.show(context,);
     if (result != null && result.isNotEmpty) {
       controller.text = result;
       onSelected?.call(result);
