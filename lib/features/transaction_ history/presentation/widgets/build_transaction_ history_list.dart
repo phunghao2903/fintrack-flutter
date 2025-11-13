@@ -92,12 +92,11 @@ Widget _buildTransactionItem(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
             ),
-            padding: const EdgeInsets.all(12.0),
             child: Image.asset(
               transaction.icon,
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) {
-                return Icon(Icons.receipt, color: Colors.grey, size: 24);
+                return Icon(Icons.receipt, color: Colors.grey, size: 48);
               },
             ),
           ),
