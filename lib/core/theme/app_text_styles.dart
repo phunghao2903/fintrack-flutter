@@ -20,7 +20,6 @@ class AppTextStyles {
     fontSize: 14,
 
     fontWeight: FontWeight.normal,
-
   );
   static final caption = GoogleFonts.outfit(
     fontSize: 12,

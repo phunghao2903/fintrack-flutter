@@ -2,7 +2,6 @@ import 'package:fintrack/features/add_transaction/data/datasource/add_tx_local_d
 import 'package:fintrack/features/add_transaction/data/repository/add_tx_repository_impl.dart';
 import 'package:get_it/get_it.dart';
 
-
 import 'domain/repositories/add_tx_repository.dart';
 import 'domain/usecases/get_categories_usecase.dart';
 import 'domain/usecases/get_money_sources_usecase.dart';
@@ -18,9 +17,7 @@ Future<void> initAddTransaction() async {
   );
 
   // repository
-  sl.registerLazySingleton<AddTxRepository>(
-    () => AddTxRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<AddTxRepository>(() => AddTxRepositoryImpl(sl()));
 
   // usecases
   sl.registerLazySingleton(() => GetCategoriesUsecase(sl()));
@@ -29,10 +26,6 @@ Future<void> initAddTransaction() async {
 
   // bloc
   sl.registerFactory(
-    () => AddTxBloc(
-      getCategories: sl(),
-      getMoneySources: sl(),
-      saveTx: sl(),
-    ),
+    () => AddTxBloc(getCategories: sl(), getMoneySources: sl(), saveTx: sl()),
   );
 }

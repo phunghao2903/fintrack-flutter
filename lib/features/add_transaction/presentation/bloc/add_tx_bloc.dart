@@ -1,6 +1,5 @@
 import 'dart:math';
 
-
 import 'package:fintrack/features/add_transaction/domain/usecases/get_categories_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/get_money_sources_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/save_transaction_usecase.dart';
@@ -13,7 +12,6 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
   final GetMoneySourcesUsecase getMoneySources;
   final SaveTransactionUsecase saveTx;
 
-  
   // AddTxBloc() : super(AddTxInitial()) {
   //   on<AddTxInitEvent>(_onInit);
   //   on<AddTxTabChangedEvent>(_onTabChanged);
@@ -41,22 +39,24 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
     // on<AddTxSubmitEvent>(_onSubmit);
   }
 
-  Future<void> _onInit(AddTxInitEvent event, Emitter<AddTxState> emit) async{
+  Future<void> _onInit(AddTxInitEvent event, Emitter<AddTxState> emit) async {
     emit(AddTxLoading());
     final cats = await getCategories(isIncome: false);
     final sources = await getMoneySources();
 
-    emit(AddTxLoaded(
-      tab: EntryTab.manual,
-      type: TransactionType.expense,
-      categories: cats,
-      moneySources: sources,
-      selectedCategoryIndex: null,
-      moneySource: sources.isNotEmpty ? sources.first.name : null,
-      amount: '',
-      note: '',
-      date: '',
-    ));
+    emit(
+      AddTxLoaded(
+        tab: EntryTab.manual,
+        type: TransactionType.expense,
+        categories: cats,
+        moneySources: sources,
+        selectedCategoryIndex: null,
+        moneySource: sources.isNotEmpty ? sources.first.name : null,
+        amount: '',
+        note: '',
+        date: '',
+      ),
+    );
   }
 
   void _onTabChanged(AddTxTabChangedEvent event, Emitter<AddTxState> emit) {
@@ -66,12 +66,23 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
     }
   }
 
-  Future<void> _onTypeChanged(AddTxTypeChangedEvent event, Emitter<AddTxState> emit) async {
+  Future<void> _onTypeChanged(
+    AddTxTypeChangedEvent event,
+    Emitter<AddTxState> emit,
+  ) async {
     final s = state;
     if (s is AddTxLoaded) {
       emit(AddTxLoading());
-      final cats = await getCategories(isIncome: event.type == TransactionType.income);
-      emit(s.copyWith(type: event.type, categories: cats, selectedCategoryIndex: null));
+      final cats = await getCategories(
+        isIncome: event.type == TransactionType.income,
+      );
+      emit(
+        s.copyWith(
+          type: event.type,
+          categories: cats,
+          selectedCategoryIndex: null,
+        ),
+      );
     }
   }
 
@@ -79,28 +90,27 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
     final s = state;
     if (s is AddTxLoaded) emit(s.copyWith(selectedCategoryIndex: e.index));
   }
-  void _onMoneySource(AddTxMoneySourceChangedEvent e, Emitter<AddTxState> emit) {
+
+  void _onMoneySource(
+    AddTxMoneySourceChangedEvent e,
+    Emitter<AddTxState> emit,
+  ) {
     final s = state;
     if (s is AddTxLoaded) emit(s.copyWith(moneySource: e.moneySource));
   }
+
   void _onDate(AddTxDateChangedEvent e, Emitter<AddTxState> emit) {
     final s = state;
     if (s is AddTxLoaded) emit(s.copyWith(date: e.date));
   }
 
-  void _onAmount(
-    AddTxAmountChangedEvent event,
-    Emitter<AddTxState> emit,
-  ) {
+  void _onAmount(AddTxAmountChangedEvent event, Emitter<AddTxState> emit) {
     final s = state;
     if (s is AddTxLoaded) emit(s.copyWith(amount: event.amount));
   }
-
-
 
   void _onNote(AddTxNoteChangedEvent event, Emitter<AddTxState> emit) {
     final s = state;
     if (s is AddTxLoaded) emit(s.copyWith(note: event.note));
   }
-
 }

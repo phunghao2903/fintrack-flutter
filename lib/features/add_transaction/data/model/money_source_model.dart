@@ -7,11 +7,8 @@ class MoneySourceModel extends MoneySourceEntity {
     required super.icon,
   });
 
-  factory MoneySourceModel.fromJson(Map<String, dynamic> j) => MoneySourceModel(
-    id: j['id'],
-    name: j['name'],
-    icon: j['icon'],
-  );
+  factory MoneySourceModel.fromJson(Map<String, dynamic> j) =>
+      MoneySourceModel(id: j['id'], name: j['name'], icon: j['icon']);
 
   Map<String, dynamic> toJson() => {'id': id, 'name': name, 'icon': icon};
 }

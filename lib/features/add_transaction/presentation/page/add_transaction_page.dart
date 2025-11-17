@@ -16,8 +16,6 @@ import 'package:fintrack/features/add_transaction/presentation/widget/manual_ent
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
-
 class AddTransactionPage extends StatefulWidget {
   const AddTransactionPage({super.key});
 
@@ -37,7 +35,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
   TransactionType _type = TransactionType.expense;
   EntryTab _tab = EntryTab.manual; // mặc định Manual Entry
-
 
   @override
   void initState() {
@@ -91,7 +88,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           active: s.tab == EntryTab.manual,
                           icon: "assets/icons/manual_entry.png",
                           text: "Manual Entry",
-                          
+
                           onTap: () => context.read<AddTxBloc>().add(
                             AddTxTabChangedEvent(EntryTab.manual),
                           ),
