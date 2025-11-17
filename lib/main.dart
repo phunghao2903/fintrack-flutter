@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:fintrack/di/injector.dart' as di;
+import 'package:fintrack/core/di/injector.dart' as di;
 import 'package:fintrack/features/add_transaction/presentation/page/add_transaction_page.dart';
 import 'package:fintrack/features/auth/pages/sign_in_page.dart';
 import 'package:fintrack/features/navigation/pages/bottombar_page.dart';
@@ -34,8 +34,8 @@ class MyApp extends StatelessWidget {
       scrollBehavior: DesktopScrollBehavior(),
       debugShowCheckedModeBanner: false,
       
-      home: AddTransactionPage(),
-      // home: SignInPage(),
+      // home: AddTransactionPage(),
+      home: SignInPage(),
     );
   }
 }
