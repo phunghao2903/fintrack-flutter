@@ -21,11 +21,13 @@ class BottombarPage extends StatelessWidget {
     final List<Widget> _page = [
       BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
       MultiBlocProvider(
-        providers: [ BlocProvider(create: (context) => ChartBloc()),
-        BlocProvider(create: (context) => HomeBloc()),], 
-        child: ChartPage()
-        ),
-      
+        providers: [
+          BlocProvider(create: (context) => ChartBloc()),
+          BlocProvider(create: (context) => HomeBloc()),
+        ],
+        child: ChartPage(),
+      ),
+
       // BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
       SignUpPage(),
       BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
