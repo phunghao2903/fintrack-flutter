@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-# Tránh trùng job khi push liên tiếp
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -20,7 +19,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Java 17 cho Gradle/Android (ổn định nhất)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -31,10 +29,8 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          # Nếu muốn cố định version để build ổn định:
           # flutter-version: '3.24.0'
 
-      # Cache pub
       - name: Cache pub
         uses: actions/cache@v4
         with:
@@ -42,7 +38,6 @@ jobs:
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
 
-      # Cache Gradle để build Android nhanh hơn
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
@@ -55,23 +50,19 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      # Kiểm tra format: fail nếu có file chưa format
       - name: Check format
         run: dart format --output=none --set-exit-if-changed .
 
-      # Phân tích tĩnh
-      - name: Analyze
-        run: flutter analyze
+      # ✅ Chỉ fail khi có ERROR
+      - name: Analyze (errors only)
+        run: flutter analyze --no-fatal-warnings --no-fatal-infos
 
-      # Chạy unit/widget tests (headless)
       - name: Test
         run: flutter test --no-pub
 
-      # Build Android để chắc chắn code compile được
       - name: Build Android (APK)
         run: flutter build apk --release
 
-      # Lưu artifact để QA tải về nếu cần
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:

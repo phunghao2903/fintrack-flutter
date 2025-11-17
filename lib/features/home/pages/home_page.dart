@@ -4,6 +4,9 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:fintrack/core/theme/app_colors.dart';
 import 'package:fintrack/core/theme/app_text_styles.dart';
 import 'package:fintrack/core/utils/size_utils.dart';
+import 'package:fintrack/features/budget/bloc/budget_bloc.dart';
+import 'package:fintrack/features/budget/bloc/budget_event.dart';
+import 'package:fintrack/features/budget/pages/budget_page.dart';
 import 'package:fintrack/features/home/bloc/home_bloc.dart';
 import 'package:fintrack/features/home/pages/account_item.dart';
 import 'package:fintrack/features/home/pages/my_pie_chart.dart';
@@ -199,7 +202,23 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Image.asset("assets/icons/swap.png"),
-                        Image.asset("assets/icons/analyst.png"),
+                        // Image.asset("assets/icons/analyst.png"),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BlocProvider(
+                                  create: (context) =>
+                                      BudgetBloc()..add(const LoadBudgets()),
+                                  child: const BudgetPage(),
+                                ),
+                              ),
+                            );
+                          },
+                          child: Image.asset("assets/icons/analyst.png"),
+                        ),
+
                         Image.asset("assets/icons/deposit.png"),
                         Image.asset("assets/icons/buy.png"),
                         Image.asset("assets/icons/add.png"),
