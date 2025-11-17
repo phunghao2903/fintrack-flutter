@@ -27,7 +27,7 @@ class AddTxRepositoryImpl implements AddTxRepository {
       amount: tx.amount,
       dateTime: tx.dateTime,
       note: tx.note,
-      category: tx.category as dynamic,     // đã là model ở local mock
+      category: tx.category as dynamic, // đã là model ở local mock
       moneySource: tx.moneySource as dynamic,
       isIncome: tx.isIncome,
     );

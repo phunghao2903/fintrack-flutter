@@ -1,10 +1,9 @@
-
 import 'package:fintrack/features/add_transaction/domain/entities/category_entity.dart';
 import 'package:fintrack/features/add_transaction/domain/entities/money_source_entity.dart';
 import 'package:fintrack/features/add_transaction/presentation/bloc/add_tx_event.dart';
 
-
 enum EntryTab { manual, image }
+
 enum TransactionType { expense, income }
 
 abstract class AddTxState {}
@@ -59,6 +58,7 @@ class AddTxLoaded extends AddTxState {
     note: note ?? this.note,
   );
 }
+
 class AddTxSubmitting extends AddTxState {}
 
 class AddTxSubmitSuccess extends AddTxState {}

@@ -16,7 +16,16 @@ class ManualForm extends StatelessWidget {
   final AddTxLoaded state;
   final TextEditingController amountCtrl, dateCtrl, moneyCtrl, noteCtrl;
 
-  const ManualForm({super.key, required this.h, required this.w, required this.state, required this.amountCtrl, required this.dateCtrl, required this.moneyCtrl, required this.noteCtrl});
+  const ManualForm({
+    super.key,
+    required this.h,
+    required this.w,
+    required this.state,
+    required this.amountCtrl,
+    required this.dateCtrl,
+    required this.moneyCtrl,
+    required this.noteCtrl,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -118,9 +127,8 @@ class ManualForm extends StatelessWidget {
         ),
       ),
     );
-  
-  
   }
+
   Widget _buildCategoryList(BuildContext context) {
     final bloc = context.read<AddTxBloc>();
 
@@ -150,10 +158,7 @@ class ManualForm extends StatelessWidget {
                 padding: EdgeInsets.only(right: w * 0.04),
                 child: GestureDetector(
                   onTap: () => bloc.add(AddTxCategorySelectedEvent(index)),
-                  child: CategoryWidget(
-                    category: item,
-                    selected: selected,
-                  ),
+                  child: CategoryWidget(category: item, selected: selected),
                 ),
               );
             },
@@ -162,5 +167,4 @@ class ManualForm extends StatelessWidget {
       ],
     );
   }
-
 }

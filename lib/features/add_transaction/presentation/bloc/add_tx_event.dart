@@ -4,7 +4,6 @@ import 'package:fintrack/features/add_transaction/presentation/bloc/add_tx_state
 
 // enum EntryTab { manual, image }
 
-
 abstract class AddTxEvent {}
 
 class AddTxInitEvent extends AddTxEvent {}
@@ -20,7 +19,7 @@ class AddTxTypeChangedEvent extends AddTxEvent {
 }
 
 class AddTxCategorySelectedEvent extends AddTxEvent {
-  final int? index; 
+  final int? index;
   AddTxCategorySelectedEvent(this.index);
 }
 
@@ -30,7 +29,7 @@ class AddTxAmountChangedEvent extends AddTxEvent {
 }
 
 class AddTxDateChangedEvent extends AddTxEvent {
-  final String date; // yyyy-MM-dd 
+  final String date; // yyyy-MM-dd
   AddTxDateChangedEvent(this.date);
 }
 

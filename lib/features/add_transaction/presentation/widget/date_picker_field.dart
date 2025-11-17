@@ -21,7 +21,7 @@ class DatePickerField extends StatelessWidget {
     required this.label,
     this.hint,
     this.pickTime = false,
-    this.onDatePicked, 
+    this.onDatePicked,
   });
 
   Future<void> _pickDateTime(BuildContext context) async {
@@ -47,7 +47,7 @@ class DatePickerField extends StatelessWidget {
     if (!pickTime) {
       final value = _formatDate(date);
       controller.text = value;
-      onDatePicked?.call(value);            // <-- GỌI CALLBACK
+      onDatePicked?.call(value); // <-- GỌI CALLBACK
       return;
     }
 
@@ -70,7 +70,7 @@ class DatePickerField extends StatelessWidget {
       // Người dùng hủy chọn giờ -> vẫn ghi mỗi ngày
       final value = _formatDate(date);
       controller.text = value;
-      onDatePicked?.call(value);            // <-- GỌI CALLBACK
+      onDatePicked?.call(value); // <-- GỌI CALLBACK
       return;
     }
 
@@ -83,7 +83,7 @@ class DatePickerField extends StatelessWidget {
     );
     final value = _formatDateTime(dt);
     controller.text = value;
-    onDatePicked?.call(value);   // yyyy-MM-dd HH:mm
+    onDatePicked?.call(value); // yyyy-MM-dd HH:mm
   }
 
   String _two(int n) => n.toString().padLeft(2, '0');
@@ -100,9 +100,8 @@ class DatePickerField extends StatelessWidget {
       label: label,
       hint: hint ?? (pickTime ? "yyyy-MM-dd HH:mm" : "yyyy-MM-dd"),
       readOnly: true,
-      suffixIcon: const Icon(Icons.calendar_today,color: Colors.white),
+      suffixIcon: const Icon(Icons.calendar_today, color: Colors.white),
       onTap: () => _pickDateTime(context),
     );
   }
 }
-

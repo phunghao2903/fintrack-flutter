@@ -20,4 +20,3 @@ class TransactionEntity {
     required this.isIncome,
   });
 }
-

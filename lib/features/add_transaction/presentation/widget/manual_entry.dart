@@ -22,16 +22,17 @@ class ManualEntry extends StatelessWidget {
     final h = SizeUtils.height(context);
     return GestureDetector(
       onTap: onTap,
-      child: 
-      SizedBox.expand(
+      child: SizedBox.expand(
         child: Stack(
           alignment: Alignment.center,
           children: [
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(icon,
-                    color: active ? AppColors.main : AppColors.white),
+                Image.asset(
+                  icon,
+                  color: active ? AppColors.main : AppColors.white,
+                ),
                 Text(
                   text,
                   style: AppTextStyles.body2.copyWith(
