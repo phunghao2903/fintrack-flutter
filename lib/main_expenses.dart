@@ -1,17 +1,16 @@
 import 'dart:ui';
 
-import 'package:fintrack/features/expenses/expenses_injection.dart';
-import 'package:fintrack/features/expenses/presentation/bloc/expenses_bloc.dart';
 import 'package:fintrack/features/expenses/presentation/pages/expenses_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+
+import 'core/di/injector.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize dependency injection
-  await initExpenses();
+  await init();
 
   runApp(const MyApp());
 
@@ -33,10 +32,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       scrollBehavior: DesktopScrollBehavior(),
-      home: BlocProvider(
-        create: (context) => sl<ExpensesBloc>(),
-        child: const ExpensesPage(),
-      ),
+      home: const ExpensesPage(),
     );
   }
 }
