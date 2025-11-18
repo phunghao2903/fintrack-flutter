@@ -219,7 +219,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
             child: Column(
               children: [
                 // Biểu đồ và chú giải với dữ liệu từ BLoC
-                buildChartSection(state.totalValue),
+                buildChartSection(state.totalValue, state.expenses),
                 const SizedBox(height: 20),
                 // Custom widget để hiển thị danh sách chi tiêu từ BLoC
                 state.expenses.isEmpty
