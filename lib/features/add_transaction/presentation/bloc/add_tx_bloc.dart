@@ -1,3 +1,4 @@
+import 'package:fintrack/features/add_transaction/domain/entities/money_source_entity.dart';
 import 'package:fintrack/features/add_transaction/domain/entities/transaction_entity.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/get_categories_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/get_money_sources_usecase.dart';
@@ -10,8 +11,6 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
   final GetCategoriesUsecase getCategories;
   final GetMoneySourcesUsecase getMoneySources;
   final SaveTransactionUsecase saveTx;
-
-
 
   AddTxBloc({
     required this.getCategories,
@@ -33,23 +32,25 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
     emit(AddTxLoading());
     final cats = await getCategories(isIncome: false);
     final sources = await getMoneySources();
+    // Copy to force an actual List<MoneySourceEntity> instead of a List<MoneySourceModel>
+    final normalizedSources = List<MoneySourceEntity>.from(sources);
 
     emit(
       AddTxLoaded(
         tab: EntryTab.manual,
         type: TransactionType.expense,
         categories: cats,
-        moneySources: sources,
-        selectedCategoryIndex: null,
-        moneySource: sources.isNotEmpty ? sources.first.name : null,
+        moneySources: normalizedSources,
+        selectedCategoryIndex: cats.isNotEmpty ? 0 : null,
+        moneySource: normalizedSources.isNotEmpty
+            ? normalizedSources.first.name
+            : null,
         amount: '',
         note: '',
         date: '',
       ),
     );
   }
-
-  
 
   void _onTabChanged(AddTxTabChangedEvent event, Emitter<AddTxState> emit) {
     final s = state;
@@ -68,11 +69,12 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
       final cats = await getCategories(
         isIncome: event.type == TransactionType.income,
       );
+
       emit(
         s.copyWith(
           type: event.type,
           categories: cats,
-          selectedCategoryIndex: null,
+          selectedCategoryIndex: cats.isNotEmpty ? 0 : null,
         ),
       );
     }
@@ -105,7 +107,7 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
     final s = state;
     if (s is AddTxLoaded) emit(s.copyWith(note: event.note));
   }
-  
+
   Future<void> _onSubmit(
     AddTxSubmitEvent event,
     Emitter<AddTxState> emit,
@@ -123,7 +125,7 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
       final category = s.categories[s.selectedCategoryIndex!];
 
       // 2. Lấy moneySource được chọn (giả sử state.moneySource = name)
-      final ms = s.moneySources.firstWhere(
+      final MoneySourceEntity ms = s.moneySources.firstWhere(
         (m) => m.name == s.moneySource,
         orElse: () => s.moneySources.first,
       );
@@ -136,7 +138,9 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
       if (s.date.isEmpty) {
         dateTime = DateTime.now();
       } else {
-        dateTime = DateTime.parse(s.date); // vì DatePickerField format yyyy-MM-dd HH:mm
+        dateTime = DateTime.parse(
+          s.date,
+        ); // vì DatePickerField format yyyy-MM-dd HH:mm
       }
 
       // 5. Tạo TransactionEntity
@@ -166,9 +170,12 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
           note: s.note,
         ),
       );
-    } catch (e) {
-      emit(AddTxError( "error "));
+    } catch (e, st) {
+      // In log để debug
+      print('AddTxBloc _onSubmit error: $e');
+      print(st);
+
+      emit(AddTxError(e.toString()));
     }
   }
 }
-

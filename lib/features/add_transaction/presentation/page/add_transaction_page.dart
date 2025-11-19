@@ -29,6 +29,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   void initState() {
     super.initState();
   }
+
   @override
   void dispose() {
     amountCtrl.dispose();
@@ -129,6 +130,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             );
           },
         ),
+
         // bottomNavigationBar: BlocBuilder<AddTxBloc, AddTxState>(
         //   builder: (context, state) {
         //     if (state is! AddTxLoaded) return const SizedBox.shrink();
@@ -156,9 +158,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         //     );
         //   },
         // ),
-
         bottomNavigationBar: BlocConsumer<AddTxBloc, AddTxState>(
-          listener: (context,state){
+          listener: (context, state) {
             if (state is AddTxSubmitSuccess) {
               // đóng màn / show snackbar
               ScaffoldMessenger.of(context).showSnackBar(
@@ -167,54 +168,46 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               // Navigator.pop(context);
             }
             if (state is AddTxError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("error submit")),
-                );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.error)), //
+              );
             }
-
           },
-          builder: (context,state){
+          builder: (context, state) {
             final h = SizeUtils.height(context);
 
             final isLoading = state is AddTxLoading;
             return BottomAppBar(
-                color: AppColors.widget,
-                child: SizedBox(
-                  height: h * 0.1,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.main,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+              color: AppColors.widget,
+              child: SizedBox(
+                height: h * 0.1,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.main,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    onPressed: isLoading
-                        ? null
-                        : () {
-                            context.read<AddTxBloc>().add(AddTxSubmitEvent());
-                          },
-                    child: isLoading
-                        ? const CircularProgressIndicator()
-                        : Text(
-                            state is AddTxLoaded && state.tab == EntryTab.manual
-                                ? (state.type == TransactionType.expense
+                  ),
+                  onPressed: isLoading
+                      ? null
+                      : () {
+                          context.read<AddTxBloc>().add(AddTxSubmitEvent());
+                        },
+                  child: isLoading
+                      ? const CircularProgressIndicator()
+                      : Text(
+                          state is AddTxLoaded && state.tab == EntryTab.manual
+                              ? (state.type == TransactionType.expense
                                     ? 'Add Expense Transaction'
                                     : 'Add Income Transaction')
-                                : 'Select Image Now',
-                            style: AppTextStyles.body2,
-                          ),
-                  ),
+                              : 'Select Image Now',
+                          style: AppTextStyles.body2,
+                        ),
                 ),
-              );
+              ),
+            );
           },
-
-
-
-          
-      
         ),
-
-
       ),
     );
   }

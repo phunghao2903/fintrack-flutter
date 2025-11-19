@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fintrack/features/add_transaction/data/datasource/%20category_remote_datasource.dart';
 import 'package:fintrack/features/add_transaction/data/datasource/%20moneysource_remote_datasource.dart';
-import 'package:fintrack/features/add_transaction/data/datasource/add_tx_local_ds.dart';
+
 import 'package:fintrack/features/add_transaction/data/datasource/add_tx_remote_datasource.dart';
 import 'package:fintrack/features/add_transaction/data/repository/add_tx_repository_impl.dart';
 import 'package:fintrack/features/add_transaction/data/repository/category_repository_impl.dart';
@@ -42,10 +42,8 @@ Future<void> initAddTransaction() async {
   );
 
   sl.registerLazySingleton<MoneySourceRemoteDataSource>(
-    () => MoneySourceRemoteDataSource(FirebaseFirestore.instance),
+    () => MoneySourceRemoteDataSourceImpl(FirebaseFirestore.instance),
   );
-
- 
 
   // Đăng ký MoneySourceRepository
   sl.registerLazySingleton<MoneySourceRepository>(

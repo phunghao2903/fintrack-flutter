@@ -78,5 +78,3 @@ class AddTxError extends AddTxState {
   final String error;
   AddTxError(this.error);
 }
-
-

@@ -1,13 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fintrack/features/add_transaction/data/model/money_source_model.dart';
+import 'package:fintrack/features/add_transaction/domain/entities/money_source_entity.dart';
 
-class MoneySourceRemoteDataSource {
+abstract class MoneySourceRemoteDataSource {
+  Future<List<MoneySourceEntity>> getMoneySources(); // ✅
+}
+
+class MoneySourceRemoteDataSourceImpl implements MoneySourceRemoteDataSource {
   final FirebaseFirestore firestore;
 
-  MoneySourceRemoteDataSource(this.firestore);
+  MoneySourceRemoteDataSourceImpl(this.firestore);
 
-  Future<List<MoneySourceModel>> getMoneySources() async {
+  @override
+  Future<List<MoneySourceEntity>> getMoneySources() async {
     final snap = await firestore.collection('money_sources').get();
-    return snap.docs.map((d) => MoneySourceModel.fromFirestore(d)).toList();
+
+    return snap.docs
+        .map(
+          (doc) => MoneySourceModel.fromFirestore(doc),
+        ) // MoneySourceModel extends MoneySourceEntity
+        .toList(); // nên List<MoneySourceEntity> OK
   }
 }

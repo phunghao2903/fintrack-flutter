@@ -10,10 +10,6 @@ class MoneySourceModel extends MoneySourceEntity {
 
   factory MoneySourceModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    return MoneySourceModel(
-      id: doc.id,
-      name: data['name'],
-      icon: data['icon'],
-    );
+    return MoneySourceModel(id: doc.id, name: data['name'], icon: data['icon']);
   }
 }

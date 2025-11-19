@@ -8,9 +8,9 @@ class CategoryRemoteDataSource {
 
   Future<List<CategoryModel>> getCategories(bool isIncome) async {
     final snap = await firestore
-      .collection('categories')
-      .where('isIncome', isEqualTo: isIncome)
-      .get();
+        .collection('categories')
+        .where('isIncome', isEqualTo: isIncome)
+        .get();
 
     return snap.docs.map((d) => CategoryModel.fromFirestore(d)).toList();
   }
