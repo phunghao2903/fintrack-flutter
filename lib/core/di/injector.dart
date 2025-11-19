@@ -11,7 +11,7 @@ import 'package:fintrack/features/budget/budget_injection.dart';
 import 'package:fintrack/features/chart/chart_injection.dart';
 import 'package:fintrack/features/expenses/expenses_injection.dart';
 import 'package:fintrack/features/income/income_injection.dart';
-
+import 'package:fintrack/features/setting/setting_injection.dart';
 import 'package:get_it/get_it.dart';
 
 final sl = GetIt.instance;
@@ -20,6 +20,7 @@ Future<void> init() async {
   await initAddTransaction();
   await injectBudgets();
   await initChartFeature();
+  await initSettingFeature();
   // await injectChart();
   // await initBudget();
   await initExpenses();
