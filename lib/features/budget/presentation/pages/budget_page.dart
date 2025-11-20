@@ -1,5 +1,6 @@
 // lib/features/budget/presentation/pages/budget_page.dart
 import 'package:fintrack/features/budget/data/repositories/budget_repository_impl.dart';
+import 'package:fintrack/features/budget/presentation/pages/add_budget_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/budget_bloc.dart';
@@ -56,25 +57,41 @@ class BudgetPage extends StatelessWidget {
                         const BudgetCard(),
                         SizedBox(height: h * 0.025),
                         //  Khung thêm budget (kept UI)
-                        CustomPaint(
-                          painter: DashedRectPainter(color: AppColors.grey),
-                          child: Container(
-                            width: double.infinity,
-                            padding: EdgeInsets.symmetric(
-                              vertical: h * 0.04,
-                              horizontal: w * 0.04,
-                            ),
-                            child: Column(
-                              children: [
-                                Image.asset("assets/icons/button_add.png"),
-                                SizedBox(height: h * 0.01),
-                                Text(
-                                  "Add new budget",
-                                  style: AppTextStyles.body1.copyWith(
-                                    color: AppColors.grey,
-                                  ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BlocProvider.value(
+                                  value: context
+                                      .read<
+                                        BudgetBloc
+                                      >(), // reuse existing bloc
+                                  child: AddBudgetPage(),
                                 ),
-                              ],
+                              ),
+                            );
+                          },
+                          child: CustomPaint(
+                            painter: DashedRectPainter(color: AppColors.grey),
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(
+                                vertical: h * 0.04,
+                                horizontal: w * 0.04,
+                              ),
+                              child: Column(
+                                children: [
+                                  Image.asset("assets/icons/button_add.png"),
+                                  SizedBox(height: h * 0.01),
+                                  Text(
+                                    "Add new budget",
+                                    style: AppTextStyles.body1.copyWith(
+                                      color: AppColors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
