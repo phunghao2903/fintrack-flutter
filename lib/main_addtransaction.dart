@@ -16,8 +16,8 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await di.init();
-  
-   runApp(const MyApp());
+
+  runApp(const MyApp());
   //  await runAppAsync(const MyApp());
 
   // Setup cửa sổ khi app khởi động

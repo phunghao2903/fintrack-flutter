@@ -9,6 +9,6 @@ class MoneySourceRepositoryImpl implements MoneySourceRepository {
 
   @override
   Future<List<MoneySourceEntity>> getMoneySources() {
-    return remote.getMoneySources(); 
+    return remote.getMoneySources();
   }
 }
