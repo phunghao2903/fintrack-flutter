@@ -3,19 +3,16 @@ import 'dart:ui';
 import 'package:fintrack/core/di/injector.dart' as di;
 import 'package:fintrack/features/add_transaction/presentation/page/add_transaction_page.dart';
 
-import 'package:fintrack/features/auth/presentation/page/sign_in_page.dart';
+import 'package:fintrack/features/chart/chart_injection.dart';
+
+import 'package:fintrack/features/setting/presentation/bloc/setting_bloc.dart';
+import 'package:fintrack/features/setting/presentation/pages/setting_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Khởi tạo Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
   await di.init();
   runApp(const MyApp());
 
@@ -39,7 +36,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       scrollBehavior: DesktopScrollBehavior(),
       debugShowCheckedModeBanner: false,
-      home: SignInPage(),
+      home: Builder(
+        builder: (context) {
+          return BlocProvider(
+            create: (_) => sl<SettingBloc>()..add(LoadSettingCardsEvent()),
+            child: const SettingPage(),
+          );
+        },
+      ),
     );
   }
 }
