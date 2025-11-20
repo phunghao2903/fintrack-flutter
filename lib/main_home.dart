@@ -4,32 +4,34 @@ import 'package:fintrack/core/di/injector.dart' as di;
 import 'package:fintrack/features/add_transaction/presentation/page/add_transaction_page.dart';
 
 import 'package:fintrack/features/auth/presentation/page/sign_in_page.dart';
+import 'package:fintrack/features/home/bloc/home_bloc.dart';
+import 'package:fintrack/features/home/pages/home_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   // Khởi tạo Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await di.init();
-  
-   runApp(const MyApp());
-  //  await runAppAsync(const MyApp());
+  runApp(const MyApp());
 
   // Setup cửa sổ khi app khởi động
-  // doWhenWindowReady(() {
-  //   const initialSize = Size(412, 892);
-  //   // const initialSize = Size(412, 592); // Kích thước iPhone 12
-  //   appWindow.minSize = initialSize;
-  //   appWindow.size = initialSize;
-  //   appWindow.alignment = Alignment.center; // Cửa sổ mở giữa màn hình
-  //   appWindow.title = "Fintrack App";
-  //   appWindow.show();
-  // });
+  doWhenWindowReady(() {
+    const initialSize = Size(412, 892);
+    // const initialSize = Size(412, 592); // Kích thước iPhone 12
+    appWindow.minSize = initialSize;
+    appWindow.size = initialSize;
+    appWindow.alignment = Alignment.center; // Cửa sổ mở giữa màn hình
+    appWindow.title = "Fintrack App";
+    appWindow.show();
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -40,7 +42,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       scrollBehavior: DesktopScrollBehavior(),
       debugShowCheckedModeBanner: false,
-      home: SignInPage(),
+      home: BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
     );
   }
 }
