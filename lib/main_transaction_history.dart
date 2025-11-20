@@ -1,8 +1,11 @@
 import 'dart:ui';
 
+import 'package:fintrack/features/home/bloc/home_bloc.dart';
+import 'package:fintrack/features/home/pages/home_page.dart';
 import 'package:fintrack/features/transaction_%20history/presentation/pages/transaction_%20history_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/di/injector.dart';
 
@@ -32,7 +35,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       scrollBehavior: DesktopScrollBehavior(),
-      home: const TransactionHistoryPage(),
+      home: BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
     );
   }
 }
