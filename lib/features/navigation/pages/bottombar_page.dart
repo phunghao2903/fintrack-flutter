@@ -16,6 +16,8 @@ import 'package:fintrack/features/home/bloc/home_bloc.dart';
 import 'package:fintrack/features/home/pages/home_page.dart';
 import 'package:fintrack/features/navigation/bloc/bottom_bloc.dart';
 import 'package:fintrack/features/navigation/pages/bottom_nav_item.dart';
+import 'package:fintrack/features/setting/presentation/bloc/setting_bloc.dart';
+import 'package:fintrack/features/setting/presentation/pages/setting_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -51,8 +53,11 @@ class _BottombarPageState extends State<BottombarPage> {
       //   child: const ChartPage(),
       // ),
       SignUpPage(),
-      BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
-      BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
+      // BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
+      BlocProvider(
+        create: (_) => sl<SettingBloc>()..add(LoadSettingCardsEvent()),
+        child: const SettingPage(),
+      ),
     ];
 
     return BlocProvider(
