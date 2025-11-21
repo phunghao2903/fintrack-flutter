@@ -4,9 +4,15 @@ import 'package:fintrack/core/theme/app_colors.dart';
 import 'package:fintrack/core/utils/size_utils.dart';
 import '../../../bloc/budget_bloc.dart';
 import '../../../bloc/budget_event.dart';
+import '../../../../domain/entities/money_source_entity.dart';
 
 class MoneySourceDropdown extends StatelessWidget {
-  const MoneySourceDropdown({super.key});
+  final List<MoneySourceEntity> items;
+
+  const MoneySourceDropdown({
+    super.key,
+    required this.items, // <<=== PARAMETER BẮT BUỘC
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +21,11 @@ class MoneySourceDropdown extends StatelessWidget {
     final w = SizeUtils.width(context);
 
     return DropdownButtonFormField<String>(
-      value: state.addSource,
+      // value: state.addSource == null || state.addSource!.isEmpty
+      //     ? null
+      //     : state.addSource,
+      value: state.addSource?.isEmpty ?? true ? null : state.addSource,
+      hint: const Text("Source", style: TextStyle(color: Colors.grey)),
       dropdownColor: AppColors.widget,
       iconEnabledColor: AppColors.white,
       style: const TextStyle(color: AppColors.white),
@@ -29,27 +39,24 @@ class MoneySourceDropdown extends StatelessWidget {
           borderSide: const BorderSide(color: AppColors.main),
           borderRadius: BorderRadius.circular(12),
         ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: EdgeInsets.symmetric(
           horizontal: w * 0.04,
           vertical: h * 0.02,
         ),
       ),
 
-      items: const [
-        DropdownMenuItem(
-          value: "Cash",
-          child: Text("Cash", style: TextStyle(color: AppColors.white)),
-        ),
-        DropdownMenuItem(
-          value: "Bank",
-          child: Text("Bank", style: TextStyle(color: AppColors.white)),
-        ),
-        DropdownMenuItem(
-          value: "All",
-          child: Text("All", style: TextStyle(color: AppColors.white)),
-        ),
-      ],
+      items: items.map((item) {
+        return DropdownMenuItem(
+          value: item.id,
+          child: Row(
+            children: [
+              Image.asset(item.icon, width: 24, height: 24),
+              const SizedBox(width: 10),
+              Text(item.name, style: const TextStyle(color: AppColors.white)),
+            ],
+          ),
+        );
+      }).toList(),
 
       onChanged: (value) {
         if (value != null) {
