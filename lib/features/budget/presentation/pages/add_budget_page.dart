@@ -41,10 +41,9 @@ class AddBudgetPage extends StatelessWidget {
     final w = SizeUtils.width(context);
 
     return BlocListener<BudgetBloc, BudgetState>(
-      listenWhen: (prev, curr) =>
-          prev.addSuccess != curr.addSuccess && curr.addSuccess == true,
-      listener: (context, state) {
-        Navigator.pop(context); // khi save xong -> tự đóng
+      listenWhen: (_, curr) => curr.addSuccess == true,
+      listener: (_, state) {
+        Navigator.pop(context);
       },
       child: Scaffold(
         backgroundColor: AppColors.background,

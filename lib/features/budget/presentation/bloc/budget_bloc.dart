@@ -183,7 +183,9 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
       final items = await getBudgetsUsecase(event.uid);
       emit(state.copyWith(budgets: items, loading: false, addSuccess: true));
     } catch (e) {
-      emit(state.copyWith(loading: false, error: e.toString()));
+      emit(
+        state.copyWith(loading: false, addSuccess: false, error: e.toString()),
+      );
     }
   }
 

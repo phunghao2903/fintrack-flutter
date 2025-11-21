@@ -240,7 +240,7 @@ class BudgetPage extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      // const BudgetCard(),
+                      const BudgetCard(),
                       SizedBox(height: h * 0.025),
                       //  Khung thêm budget (kept UI)
                       GestureDetector(

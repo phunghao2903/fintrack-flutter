@@ -6,23 +6,23 @@ class BudgetRemoteDataSource {
   BudgetRemoteDataSource(this.firestore);
 
   Future<void> addBudget(String uid, BudgetModel model) async {
-    // final data = model.toFirestore(uid: uid);
+    final data = model.toFirestore(uid: uid);
 
-    // await firestore
-    //     .collection('users')
-    //     .doc(uid)
-    //     .collection('transactions')
-    //     .add(data);
-
-    final ref = firestore
+    await firestore
         .collection('users')
         .doc(uid)
         .collection('budgets')
-        .doc();
+        .add(data);
 
-    final newModel = model.copyWith(id: ref.id);
+    // final ref = firestore
+    //     .collection('users')
+    //     .doc(uid)
+    //     .collection('budgets')
+    //     .doc();
 
-    await ref.set(newModel.toFirestore());
+    // final newModel = model.copyWith(id: ref.id);
+
+    // await ref.set(newModel.toFirestore());
   }
 
   Future<List<BudgetModel>> getBudgets(String uid) async {
