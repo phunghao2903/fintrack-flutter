@@ -13,6 +13,7 @@ import 'package:fintrack/features/home/bloc/home_bloc.dart';
 import 'package:fintrack/features/home/pages/account_item.dart';
 import 'package:fintrack/features/home/pages/my_pie_chart.dart';
 import 'package:fintrack/features/home/pages/transaction_history.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -208,12 +209,14 @@ class _HomePageState extends State<HomePage> {
                         // Image.asset("assets/icons/analyst.png"),
                         GestureDetector(
                           onTap: () {
+                            final uid = FirebaseAuth.instance.currentUser!.uid;
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => BlocProvider(
                                   create: (_) =>
-                                      sl<BudgetBloc>()..add(LoadBudgets()),
+                                      sl<BudgetBloc>()..add(LoadBudgets(uid)),
                                   child: const BudgetPage(),
                                 ),
                               ),
