@@ -53,7 +53,9 @@ class _BottombarPageState extends State<BottombarPage> {
       //   create: (_) => sl<ChartBloc>()..add(LoadChartDataEvent()),
       //   child: const ChartPage(),
       // ),
+
       AIChatPage(),
+
       // BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
       BlocProvider(
         create: (_) => sl<SettingBloc>()..add(LoadSettingCardsEvent()),
