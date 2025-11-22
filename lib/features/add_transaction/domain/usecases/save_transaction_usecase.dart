@@ -6,7 +6,7 @@ class SaveTransactionUsecase {
 
   SaveTransactionUsecase(this.repo);
 
-  Future<void> call(TransactionEntity tx) async {
+  Future<String> call(TransactionEntity tx) async {
     return repo.saveTransaction(tx);
   }
 }

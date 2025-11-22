@@ -8,6 +8,7 @@ import 'package:fintrack/features/add_transaction/data/repository/category_repos
 import 'package:fintrack/features/add_transaction/data/repository/moneysource_repository_impl.dart';
 import 'package:fintrack/features/add_transaction/domain/repositories/%20moneysource_repository.dart';
 import 'package:fintrack/features/add_transaction/domain/repositories/category_repository.dart';
+import 'package:fintrack/features/add_transaction/domain/usecases/change_money_source_balance_usecase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 
@@ -15,6 +16,8 @@ import 'domain/repositories/add_tx_repository.dart';
 import 'domain/usecases/get_categories_usecase.dart';
 import 'domain/usecases/get_money_sources_usecase.dart';
 import 'domain/usecases/save_transaction_usecase.dart';
+import 'domain/usecases/delete_transaction_usecase.dart';
+import 'domain/usecases/update_transaction_usecase.dart';
 import 'presentation/bloc/add_tx_bloc.dart';
 
 final sl = GetIt.instance;
@@ -67,12 +70,31 @@ Future<void> initAddTransaction() async {
   sl.registerLazySingleton<SaveTransactionUsecase>(
     () => SaveTransactionUsecase(sl()),
   );
+  sl.registerLazySingleton<DeleteTransactionUsecase>(
+    () => DeleteTransactionUsecase(sl()),
+  );
+  sl.registerLazySingleton<UpdateTransactionUsecase>(
+    () => UpdateTransactionUsecase(sl()),
+  );
+  sl.registerLazySingleton<ChangeMoneySourceBalanceUsecase>(
+    () => ChangeMoneySourceBalanceUsecase(sl()),
+  );
+  // Bloc
+  sl.registerFactory<AddTxBloc>(
+    () => AddTxBloc(
+      getCategories: sl(),
+      getMoneySources: sl(),
+      saveTx: sl(),
+      updateTx: sl(),
+      changeBalance: sl(), // 👈 thêm dòng này
+    ),
+  );
 
   // bloc
   // sl.registerFactory(
   //   () => AddTxBloc(getCategories: sl(), getMoneySources: sl(), saveTx: sl()),
   // );
-  sl.registerFactory(
-    () => AddTxBloc(getCategories: sl(), getMoneySources: sl(), saveTx: sl()),
-  );
+  // sl.registerFactory(
+  //   () => AddTxBloc(getCategories: sl(), getMoneySources: sl(), saveTx: sl(), changeBalance: sl(),),
+  // );
 }

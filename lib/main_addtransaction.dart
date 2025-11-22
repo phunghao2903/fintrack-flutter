@@ -12,12 +12,13 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   // Khởi tạo Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await di.init();
+
   runApp(const MyApp());
+  //  await runAppAsync(const MyApp());
 
   // Setup cửa sổ khi app khởi động
   // doWhenWindowReady(() {
@@ -29,6 +30,19 @@ void main() async {
   //   appWindow.title = "Fintrack App";
   //   appWindow.show();
   // });
+  await di.init();
+  runApp(const MyApp());
+
+  // Setup cửa sổ khi app khởi động
+  doWhenWindowReady(() {
+    const initialSize = Size(412, 892);
+    // const initialSize = Size(412, 592); // Kích thước iPhone 12
+    appWindow.minSize = initialSize;
+    appWindow.size = initialSize;
+    appWindow.alignment = Alignment.center; // Cửa sổ mở giữa màn hình
+    appWindow.title = "Fintrack App";
+    appWindow.show();
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -37,20 +51,21 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // scrollBehavior: DesktopScrollBehavior(),
-      // debugShowCheckedModeBanner: false,
-      home: SignInPage(),
+      scrollBehavior: DesktopScrollBehavior(),
+      debugShowCheckedModeBanner: false,
+      // home: SignInPage(),
+      home: AddTransactionPage(),
     );
   }
 }
 
-// class DesktopScrollBehavior extends MaterialScrollBehavior {
-//   @override
-//   Set<PointerDeviceKind> get dragDevices => {
-//     PointerDeviceKind.touch,
-//     PointerDeviceKind.mouse,
-//     PointerDeviceKind.trackpad,
-//     PointerDeviceKind.stylus,
-//     PointerDeviceKind.unknown,
-//   };
-// }
+class DesktopScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+    PointerDeviceKind.stylus,
+    PointerDeviceKind.unknown,
+  };
+}

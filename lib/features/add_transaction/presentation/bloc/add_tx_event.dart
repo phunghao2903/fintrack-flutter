@@ -1,11 +1,18 @@
 // import 'package:fintrack/features/add_transaction/data/datasource/category.dart';
 import 'package:fintrack/features/add_transaction/presentation/bloc/add_tx_state.dart';
+import 'package:fintrack/features/add_transaction/domain/entities/transaction_entity.dart';
+import 'package:fintrack/features/add_transaction/domain/entities/category_entity.dart';
 
 // enum EntryTab { manual, image }
 
 abstract class AddTxEvent {}
 
 class AddTxInitEvent extends AddTxEvent {}
+
+class AddTxInitEditEvent extends AddTxEvent {
+  final TransactionEntity transaction;
+  AddTxInitEditEvent(this.transaction);
+}
 
 class AddTxTabChangedEvent extends AddTxEvent {
   final EntryTab tab;
@@ -18,8 +25,8 @@ class AddTxTypeChangedEvent extends AddTxEvent {
 }
 
 class AddTxCategorySelectedEvent extends AddTxEvent {
-  final int? index;
-  AddTxCategorySelectedEvent(this.index);
+  final CategoryEntity category;
+  AddTxCategorySelectedEvent(this.category);
 }
 
 class AddTxAmountChangedEvent extends AddTxEvent {
