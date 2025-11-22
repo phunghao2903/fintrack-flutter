@@ -30,6 +30,7 @@ class LabeledTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasError = errorText != null && errorText!.isNotEmpty;
     return TextField(
       controller: controller,
       readOnly: readOnly,
@@ -44,11 +45,18 @@ class LabeledTextField extends StatelessWidget {
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelStyle: AppTextStyles.caption.copyWith(color: AppColors.main),
         floatingLabelStyle: AppTextStyles.caption.copyWith(
-          color: AppColors.grey,
+          color: hasError ? Colors.red : AppColors.grey,
         ),
-        border: const OutlineInputBorder(),
+        errorText: errorText,
+        errorStyle: const TextStyle(color: Colors.red),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: hasError ? Colors.red : AppColors.grey),
+        ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: AppColors.main),
+          borderSide: BorderSide(color: hasError ? Colors.red : AppColors.main),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: hasError ? Colors.red : AppColors.grey),
         ),
         suffixIcon: suffixIcon,
       ),

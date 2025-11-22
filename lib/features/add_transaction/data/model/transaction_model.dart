@@ -28,6 +28,7 @@ class TransactionModel {
 
   factory TransactionModel.fromEntity(TransactionEntity e) {
     return TransactionModel(
+      id: e.id,
       amount: e.amount,
       dateTime: e.dateTime,
       note: e.note,

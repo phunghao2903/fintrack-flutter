@@ -5,6 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class MoneySourceRemoteDataSource {
   Future<List<MoneySourceEntity>> getMoneySources(); // ✅
+  Future<void> incrementBalance({
+    required String moneySourceId,
+    required double delta, // >0: cộng, <0: trừ
+  });
 }
 
 class MoneySourceRemoteDataSourceImpl implements MoneySourceRemoteDataSource {
@@ -30,10 +34,25 @@ class MoneySourceRemoteDataSourceImpl implements MoneySourceRemoteDataSource {
         .collection('money_sources')
         .get();
 
-    return snap.docs
-        .map(
-          (doc) => MoneySourceModel.fromFirestore(doc),
-        ) // MoneySourceModel extends MoneySourceEntity
-        .toList(); // nên List<MoneySourceEntity> OK
+    return snap.docs.map((doc) => MoneySourceModel.fromFirestore(doc)).toList();
+  }
+
+  @override
+  Future<void> incrementBalance({
+    required String moneySourceId,
+    required double delta,
+  }) async {
+    final user = auth.currentUser;
+    if (user == null) {
+      throw Exception("User not logged in");
+    }
+    final uid = user.uid;
+
+    await firestore
+        .collection('users')
+        .doc(uid)
+        .collection('money_sources')
+        .doc(moneySourceId)
+        .update({'balance': FieldValue.increment(delta)});
   }
 }

@@ -1,3 +1,4 @@
+import 'package:fintrack/core/constants/assets.dart';
 import 'package:fintrack/core/theme/app_colors.dart';
 import 'package:fintrack/core/theme/app_text_styles.dart';
 import 'package:fintrack/core/utils/size_utils.dart';
@@ -96,6 +97,9 @@ class MoneySourceBottomSheet extends StatelessWidget {
                         final item = sources[index];
                         final bool isSelected =
                             (selectedName != null && selectedName == item.name);
+                        final iconPath = item.icon.trim().isNotEmpty
+                            ? item.icon
+                            : kDefaultIconAsset;
                         return InkWell(
                           borderRadius: BorderRadius.circular(10),
                           onTap: () => Navigator.pop(context, item.name),
@@ -121,7 +125,7 @@ class MoneySourceBottomSheet extends StatelessWidget {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Image.asset(item.icon),
+                                  Image.asset(iconPath),
                                   Text(
                                     item.name,
 

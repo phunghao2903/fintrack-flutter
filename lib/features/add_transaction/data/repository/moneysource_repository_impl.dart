@@ -11,4 +11,9 @@ class MoneySourceRepositoryImpl implements MoneySourceRepository {
   Future<List<MoneySourceEntity>> getMoneySources() {
     return remote.getMoneySources();
   }
+
+  @override
+  Future<void> changeBalance(String moneySourceId, double delta) {
+    return remote.incrementBalance(moneySourceId: moneySourceId, delta: delta);
+  }
 }

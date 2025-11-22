@@ -30,8 +30,14 @@ class ManualForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<AddTxBloc>();
+    // Keep controllers in sync with bloc state so rebuilds don't lose user input/selection.
+    if (amountCtrl.text != state.amount) amountCtrl.text = state.amount;
+    if (dateCtrl.text != state.date) dateCtrl.text = state.date;
+    if (moneyCtrl.text != (state.moneySource ?? '')) {
+      moneyCtrl.text = state.moneySource ?? '';
+    }
+    if (noteCtrl.text != state.note) noteCtrl.text = state.note;
     return Container(
-      height: h * 0.6,
       decoration: BoxDecoration(
         color: AppColors.widget,
         borderRadius: BorderRadius.circular(15),
@@ -39,6 +45,7 @@ class ManualForm extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: w * 0.05, vertical: h * 0.03),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -97,6 +104,7 @@ class ManualForm extends StatelessWidget {
               label: 'Amount',
               hint: '0đ',
               keyboardType: TextInputType.number,
+              errorText: state.amountError,
               onChanged: (v) => bloc.add(AddTxAmountChangedEvent(v)),
             ),
             SizedBox(height: h * 0.02),
@@ -107,6 +115,7 @@ class ManualForm extends StatelessWidget {
               label: 'Transaction date',
               pickTime: true,
               hint: 'Date',
+              errorText: state.dateError,
               onDatePicked: (v) => bloc.add(AddTxDateChangedEvent(v)),
             ),
             SizedBox(height: h * 0.02),
@@ -114,6 +123,7 @@ class ManualForm extends StatelessWidget {
               controller: moneyCtrl,
               label: "Money Source",
               hint: "Money Source",
+              errorText: state.moneySourceError,
               onSelected: (v) => bloc.add(AddTxMoneySourceChangedEvent(v)),
             ),
             SizedBox(height: h * 0.02),
@@ -153,17 +163,31 @@ class ManualForm extends StatelessWidget {
             itemCount: state.categories.length,
             itemBuilder: (context, index) {
               final item = state.categories[index];
-              final selected = state.selectedCategoryIndex == index;
+              final selected = state.selectedCategory?.id == item.id;
               return Padding(
                 padding: EdgeInsets.only(right: w * 0.04),
                 child: GestureDetector(
-                  onTap: () => bloc.add(AddTxCategorySelectedEvent(index)),
-                  child: CategoryWidget(category: item, selected: selected),
+                  onTap: () => bloc.add(AddTxCategorySelectedEvent(item)),
+                  child: CategoryWidget(
+                    category: item,
+                    selected: selected,
+                    showError: state.categoryError != null && !selected,
+                  ),
                 ),
               );
             },
           ),
         ),
+        if (state.categoryError != null) ...[
+          SizedBox(height: h * 0.008),
+          Padding(
+            padding: EdgeInsets.only(left: w * 0.02),
+            child: Text(
+              state.categoryError!,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+        ],
       ],
     );
   }

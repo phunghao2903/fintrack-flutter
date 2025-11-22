@@ -1,35 +1,30 @@
+import 'package:fintrack/core/di/injector.dart';
 import 'package:fintrack/core/theme/app_colors.dart';
 import 'package:fintrack/core/theme/app_text_styles.dart';
 import 'package:fintrack/core/utils/size_utils.dart';
-import 'package:fintrack/core/di/injector.dart';
-
+import 'package:fintrack/features/add_transaction/domain/entities/transaction_entity.dart';
 import 'package:fintrack/features/add_transaction/presentation/bloc/add_tx_bloc.dart';
 import 'package:fintrack/features/add_transaction/presentation/bloc/add_tx_event.dart';
 import 'package:fintrack/features/add_transaction/presentation/bloc/add_tx_state.dart';
 import 'package:fintrack/features/add_transaction/presentation/widget/image_entry.dart';
-import 'package:fintrack/features/add_transaction/presentation/widget/manual_form.dart';
 import 'package:fintrack/features/add_transaction/presentation/widget/manual_entry.dart';
-import 'package:fintrack/features/add_transaction/presentation/page/transaction_detail_page.dart';
+import 'package:fintrack/features/add_transaction/presentation/widget/manual_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AddTransactionPage extends StatefulWidget {
-  const AddTransactionPage({super.key});
+class EditTransactionPage extends StatefulWidget {
+  final TransactionEntity transaction;
+  const EditTransactionPage({super.key, required this.transaction});
 
   @override
-  State<AddTransactionPage> createState() => _AddTransactionPageState();
+  State<EditTransactionPage> createState() => _EditTransactionPageState();
 }
 
-class _AddTransactionPageState extends State<AddTransactionPage> {
+class _EditTransactionPageState extends State<EditTransactionPage> {
   final amountCtrl = TextEditingController();
   final dateCtrl = TextEditingController();
   final moneyCtrl = TextEditingController();
   final noteCtrl = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -45,19 +40,18 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     final h = SizeUtils.height(context);
     final w = SizeUtils.width(context);
     return BlocProvider<AddTxBloc>(
-      create: (_) => sl<AddTxBloc>()..add(AddTxInitEvent()),
+      create: (_) =>
+          sl<AddTxBloc>()..add(AddTxInitEditEvent(widget.transaction)),
       child: Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
           title: Text(
-            "Add transaction",
+            "Edit transaction",
             style: AppTextStyles.body1.copyWith(color: AppColors.white),
           ),
           backgroundColor: AppColors.background,
           iconTheme: const IconThemeData(color: AppColors.white),
         ),
-
-        // ========================= BODY =========================
         body: BlocBuilder<AddTxBloc, AddTxState>(
           builder: (context, state) {
             if (state is AddTxLoading || state is AddTxInitial) {
@@ -71,12 +65,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 ),
               );
             }
-
             final s = state as AddTxLoaded;
-
             return Column(
               children: [
-                // ======== TAB HEADER ========
                 Container(
                   height: h * 0.1,
                   width: w,
@@ -88,7 +79,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           active: s.tab == EntryTab.manual,
                           icon: "assets/icons/manual_entry.png",
                           text: "Manual Entry",
-
                           onTap: () => context.read<AddTxBloc>().add(
                             AddTxTabChangedEvent(EntryTab.manual),
                           ),
@@ -107,10 +97,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     ],
                   ),
                 ),
-
                 SizedBox(height: h * 0.01),
-
-                // ======== BODY CONTENT ========
                 Expanded(
                   child: SingleChildScrollView(
                     padding: EdgeInsets.symmetric(
@@ -134,64 +121,21 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             );
           },
         ),
-
-        // bottomNavigationBar: BlocBuilder<AddTxBloc, AddTxState>(
-        //   builder: (context, state) {
-        //     if (state is! AddTxLoaded) return const SizedBox.shrink();
-        //     final s = state;
-
-        //     return BottomAppBar(
-        //       color: AppColors.widget,
-        //       child: Container(
-        //         height: h * 0.1,
-        //         decoration: BoxDecoration(
-        //           color: AppColors.main,
-        //           borderRadius: BorderRadius.circular(10),
-        //         ),
-        //         child: Center(
-        //           child: Text(
-        //             s.tab == EntryTab.manual
-        //                 ? (s.type == TransactionType.expense
-        //                       ? "Add Expense Transaction"
-        //                       : "Add Income Transaction")
-        //                 : "Select Image Now",
-        //             style: AppTextStyles.body2.copyWith(fontSize: 18),
-        //           ),
-        //         ),
-        //       ),
-        //     );
-        //   },
-        // ),
         bottomNavigationBar: BlocConsumer<AddTxBloc, AddTxState>(
           listener: (context, state) {
             if (state is AddTxSubmitSuccess) {
-              final msg = state.isEdit
-                  ? 'Transaction updated'
-                  : 'Saved transaction';
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(msg)));
-              if (state.isEdit) {
-                Navigator.pop(context, state.transaction);
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        TransactionDetailPage(transaction: state.transaction),
-                  ),
-                );
-              }
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Transaction updated')),
+              );
+              Navigator.pop(context, state.transaction);
             }
             if (state is AddTxError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.error)), //
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.error)));
             }
           },
           builder: (context, state) {
-            final h = SizeUtils.height(context);
-
             final isLoading = state is AddTxLoading;
             return BottomAppBar(
               color: AppColors.widget,
@@ -211,16 +155,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                         },
                   child: isLoading
                       ? const CircularProgressIndicator()
-                      : Text(
-                          state is AddTxLoaded && state.tab == EntryTab.manual
-                              ? (state is AddTxLoaded && state.isEdit
-                                    ? 'Update transaction'
-                                    : state.type == TransactionType.expense
-                                    ? 'Add Expense Transaction'
-                                    : 'Add Income Transaction')
-                              : 'Select Image Now',
-                          style: AppTextStyles.body2,
-                        ),
+                      : Text('Update transaction', style: AppTextStyles.body2),
                 ),
               ),
             );

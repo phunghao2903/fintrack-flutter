@@ -2,4 +2,5 @@ import 'package:fintrack/features/add_transaction/domain/entities/money_source_e
 
 abstract class MoneySourceRepository {
   Future<List<MoneySourceEntity>> getMoneySources();
+  Future<void> changeBalance(String moneySourceId, double delta);
 }
