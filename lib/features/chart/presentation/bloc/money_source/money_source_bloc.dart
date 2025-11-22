@@ -19,25 +19,25 @@ class MoneySourceBloc extends Bloc<MoneySourceEvent, MoneySourceState> {
     LoadMoneySourcesEvent event,
     Emitter<MoneySourceState> emit,
   ) async {
-    // try {
-    //   emit(MoneySourceLoading());
-    //   final list = await getMoneySourcesUseCase();
-    //   emit(MoneySourceLoaded(list));
-    // } catch (e) {
-    //   emit(MoneySourceError(e.toString()));
-    // }
-
-    print("MoneySourceBloc: event received");
-
     try {
       emit(MoneySourceLoading());
-      print("Loading from Firestore...");
       final list = await getMoneySourcesUseCase();
-      print("Loaded ${list.length} money sources");
       emit(MoneySourceLoaded(list));
     } catch (e) {
-      print("MoneySource ERROR: $e");
       emit(MoneySourceError(e.toString()));
     }
+
+    // print("MoneySourceBloc: event received");
+
+    // try {
+    //   emit(MoneySourceLoading());
+    //   print("Loading from Firestore...");
+    //   final list = await getMoneySourcesUseCase();
+    //   print("Loaded ${list.length} money sources");
+    //   emit(MoneySourceLoaded(list));
+    // } catch (e) {
+    //   print("MoneySource ERROR: $e");
+    //   emit(MoneySourceError(e.toString()));
+    // }
   }
 }

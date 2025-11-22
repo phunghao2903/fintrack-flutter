@@ -64,11 +64,11 @@ class SummaryCard extends StatelessWidget {
   }
 
   /// Tính % thay đổi giữa hai giá trị cuối cùng
-  static double calculateChangePercent(List<double> values) {
-    if (values.length < 2) return 0.0;
-    final last = values.last;
-    final previous = values[values.length - 2];
-    if (previous == 0) return 0.0;
-    return ((last - previous) / previous) * 100;
-  }
+  // static double calculateChangePercent(List<double> values) {
+  //   if (values.length < 2) return 0.0;
+  //   final last = values.last;
+  //   final previous = values[values.length - 2];
+  //   if (previous == 0) return 0.0;
+  //   return ((last - previous) / previous) * 100;
+  // }
 }

@@ -17,12 +17,9 @@ class ChartBloc extends Bloc<ChartEvent, ChartState> {
     Emitter<ChartState> emit,
   ) async {
     final data = await getChartDataUseCase(state.selectedFilter);
-    final incomeChange = _calculateChangePercent(
-      data.map((e) => e.income).toList(),
-    );
-    final expenseChange = _calculateChangePercent(
-      data.map((e) => e.expense).toList(),
-    );
+    final incomeChange = calculateChange(data.map((e) => e.income).toList());
+    final expenseChange = calculateChange(data.map((e) => e.expense).toList());
+
     emit(
       state.copyWith(
         chartData: data,
@@ -37,12 +34,8 @@ class ChartBloc extends Bloc<ChartEvent, ChartState> {
     Emitter<ChartState> emit,
   ) async {
     final data = await getChartDataUseCase(event.filter);
-    final incomeChange = _calculateChangePercent(
-      data.map((e) => e.income).toList(),
-    );
-    final expenseChange = _calculateChangePercent(
-      data.map((e) => e.expense).toList(),
-    );
+    final incomeChange = calculateChange(data.map((e) => e.income).toList());
+    final expenseChange = calculateChange(data.map((e) => e.expense).toList());
     emit(
       state.copyWith(
         selectedFilter: event.filter,
@@ -53,11 +46,19 @@ class ChartBloc extends Bloc<ChartEvent, ChartState> {
     );
   }
 
-  double _calculateChangePercent(List<double> values) {
-    if (values.length < 2) return 0.0;
-    final last = values.last;
-    final previous = values[values.length - 2];
-    if (previous == 0) return 0.0;
-    return ((last - previous) / previous) * 100;
+  double calculateChange(List<double> values) {
+    if (values.length < 2) return 0;
+
+    final oldValue = values[values.length - 2];
+    final newValue = values.last;
+
+    if (oldValue == 0) {
+      if (newValue == 0)
+        return 0;
+      else
+        return 100;
+    }
+
+    return ((newValue - oldValue) / oldValue) * 100;
   }
 }

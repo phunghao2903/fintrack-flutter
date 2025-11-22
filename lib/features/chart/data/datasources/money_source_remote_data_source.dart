@@ -27,12 +27,6 @@ class MoneySourceRemoteDataSourceImpl implements MoneySourceRemoteDataSource {
         .collection("money_sources")
         .get();
 
-    print("🔥 Firestore returned ${snap.docs.length} documents");
-
-    for (var d in snap.docs) {
-      print("📄 Document: ${d.id} => ${d.data()}");
-    }
-
     return snap.docs.map((doc) => MoneySourceModel.fromFirestore(doc)).toList();
   }
 }

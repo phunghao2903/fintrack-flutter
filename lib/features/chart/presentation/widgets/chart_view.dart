@@ -71,13 +71,19 @@ class ChartView extends StatelessWidget {
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 60,
+                      reservedSize: 50,
                       interval: interval,
                       getTitlesWidget: (value, meta) {
-                        return Text(
-                          '\$${value.toInt()}',
-                          style: AppTextStyles.body2.copyWith(
-                            color: AppColors.grey,
+                        return SizedBox(
+                          width: w * 0.1,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              '\$${value.toInt()}',
+                              style: AppTextStyles.body2.copyWith(
+                                color: AppColors.grey,
+                              ),
+                            ),
                           ),
                         );
                       },
@@ -91,10 +97,16 @@ class ChartView extends StatelessWidget {
                         final index = value.toInt();
                         if (index < 0 || index >= data.length)
                           return const SizedBox();
-                        return Text(
-                          data[index].day,
-                          style: AppTextStyles.body2.copyWith(
-                            color: AppColors.grey,
+                        return SizedBox(
+                          width: w * 0.09, // tùy chỉnh
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              data[index].day,
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.grey,
+                              ),
+                            ),
                           ),
                         );
                       },

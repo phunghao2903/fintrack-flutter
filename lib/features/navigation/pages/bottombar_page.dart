@@ -37,17 +37,22 @@ class _BottombarPageState extends State<BottombarPage> {
     final h = SizeUtils.height(context);
     final w = SizeUtils.width(context);
     final List<Widget> _page = [
+      //Homepage
       BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
 
-      ChartPage(),
+      //Chartpage
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => sl<ChartBloc>()),
+          BlocProvider(create: (_) => sl<MoneySourceBloc>()),
+        ],
+        child: ChartPage(),
+      ),
 
-      // BlocProvider<ChartBloc>(
-      //   create: (_) => sl<ChartBloc>()..add(LoadChartDataEvent()),
-      //   child: const ChartPage(),
-      // ),
+      //AIchatpage
       AIChatPage(),
 
-      // BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
+      //Settingpage
       BlocProvider(
         create: (_) => sl<SettingBloc>()..add(LoadSettingCardsEvent()),
         child: const SettingPage(),
