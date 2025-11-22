@@ -7,12 +7,14 @@ class MoneySourceField extends StatelessWidget {
   final String label;
   final String? hint;
   final ValueChanged<String>? onSelected;
+  final String? errorText;
   const MoneySourceField({
     super.key,
     required this.controller,
     required this.label,
     this.hint,
     this.onSelected,
+    this.errorText,
   });
   Future<void> _openSheet(BuildContext context) async {
     final result = await MoneySourceBottomSheet.show(context);
@@ -30,6 +32,7 @@ class MoneySourceField extends StatelessWidget {
       hint: hint,
       readOnly: true,
       suffixIcon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+      errorText: errorText,
       onTap: () => _openSheet(context),
     );
   }

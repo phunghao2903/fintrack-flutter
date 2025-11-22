@@ -1,8 +1,11 @@
+import 'package:fintrack/features/add_transaction/domain/entities/category_entity.dart';
 import 'package:fintrack/features/add_transaction/domain/entities/money_source_entity.dart';
 import 'package:fintrack/features/add_transaction/domain/entities/transaction_entity.dart';
+import 'package:fintrack/features/add_transaction/domain/usecases/change_money_source_balance_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/get_categories_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/get_money_sources_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/save_transaction_usecase.dart';
+import 'package:fintrack/features/add_transaction/domain/usecases/update_transaction_usecase.dart';
 import 'package:fintrack/features/add_transaction/presentation/bloc/add_tx_event.dart';
 import 'package:fintrack/features/add_transaction/presentation/bloc/add_tx_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,13 +14,18 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
   final GetCategoriesUsecase getCategories;
   final GetMoneySourcesUsecase getMoneySources;
   final SaveTransactionUsecase saveTx;
+  final UpdateTransactionUsecase updateTx;
+  final ChangeMoneySourceBalanceUsecase changeBalance;
 
   AddTxBloc({
     required this.getCategories,
     required this.getMoneySources,
     required this.saveTx,
+    required this.updateTx,
+    required this.changeBalance,
   }) : super(AddTxInitial()) {
     on<AddTxInitEvent>(_onInit);
+    on<AddTxInitEditEvent>(_onInitEdit);
     on<AddTxTabChangedEvent>(_onTabChanged);
     on<AddTxTypeChangedEvent>(_onTypeChanged);
     on<AddTxCategorySelectedEvent>(_onCategory);
@@ -30,7 +38,8 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
 
   Future<void> _onInit(AddTxInitEvent event, Emitter<AddTxState> emit) async {
     emit(AddTxLoading());
-    final cats = await getCategories(isIncome: false);
+    final catsRaw = await getCategories(isIncome: false);
+    final cats = List<CategoryEntity>.from(catsRaw);
     final sources = await getMoneySources();
     // Copy to force an actual List<MoneySourceEntity> instead of a List<MoneySourceModel>
     final normalizedSources = List<MoneySourceEntity>.from(sources);
@@ -41,13 +50,61 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
         type: TransactionType.expense,
         categories: cats,
         moneySources: normalizedSources,
-        selectedCategoryIndex: cats.isNotEmpty ? 0 : null,
+        selectedCategory: cats.isNotEmpty ? cats.first : null,
         moneySource: normalizedSources.isNotEmpty
             ? normalizedSources.first.name
-            : null,
+            : '',
         amount: '',
         note: '',
         date: '',
+        isEdit: false,
+        originalTx: null,
+      ),
+    );
+  }
+
+  Future<void> _onInitEdit(
+    AddTxInitEditEvent event,
+    Emitter<AddTxState> emit,
+  ) async {
+    emit(AddTxLoading());
+    final catsRaw = await getCategories(isIncome: event.transaction.isIncome);
+    final cats = List<CategoryEntity>.from(catsRaw);
+    final sources = await getMoneySources();
+    final normalizedSources = List<MoneySourceEntity>.from(sources);
+
+    final selectedCat = cats.firstWhere(
+      (c) => c.id == event.transaction.category.id,
+      orElse: () => cats.isNotEmpty ? cats.first : event.transaction.category,
+    );
+
+    final selectedMoneySource = normalizedSources.firstWhere(
+      (m) => m.id == event.transaction.moneySource.id,
+      orElse: () => normalizedSources.isNotEmpty
+          ? normalizedSources.first
+          : event.transaction.moneySource,
+    );
+
+    String _two(int n) => n.toString().padLeft(2, '0');
+    final dt = event.transaction.dateTime;
+    final dateStr =
+        "${dt.year}-${_two(dt.month)}-${_two(dt.day)} ${_two(dt.hour)}:${_two(dt.minute)}";
+
+    emit(
+      AddTxLoaded(
+        tab: EntryTab.manual,
+        type: event.transaction.isIncome
+            ? TransactionType.income
+            : TransactionType.expense,
+        categories: cats,
+        moneySources: normalizedSources,
+        selectedCategory: selectedCat,
+        moneySource: selectedMoneySource.name,
+        amount: event.transaction.amount.toString(),
+        note: event.transaction.note,
+        date: dateStr,
+        isEdit: true,
+        originalTx: event.transaction,
       ),
     );
   }
@@ -74,7 +131,14 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
         s.copyWith(
           type: event.type,
           categories: cats,
-          selectedCategoryIndex: cats.isNotEmpty ? 0 : null,
+          selectedCategory: cats.isNotEmpty
+              ? cats.first
+              : null, // reset category for new list
+          updateCategory: true,
+          amountError: null,
+          categoryError: null,
+          dateError: null,
+          moneySourceError: null,
         ),
       );
     }
@@ -82,7 +146,15 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
 
   void _onCategory(AddTxCategorySelectedEvent e, Emitter<AddTxState> emit) {
     final s = state;
-    if (s is AddTxLoaded) emit(s.copyWith(selectedCategoryIndex: e.index));
+    if (s is AddTxLoaded) {
+      emit(
+        s.copyWith(
+          selectedCategory: e.category,
+          updateCategory: true,
+          categoryError: null,
+        ),
+      );
+    }
   }
 
   void _onMoneySource(
@@ -90,17 +162,23 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
     Emitter<AddTxState> emit,
   ) {
     final s = state;
-    if (s is AddTxLoaded) emit(s.copyWith(moneySource: e.moneySource));
+    if (s is AddTxLoaded) {
+      emit(s.copyWith(moneySource: e.moneySource, moneySourceError: null));
+    }
   }
 
   void _onDate(AddTxDateChangedEvent e, Emitter<AddTxState> emit) {
     final s = state;
-    if (s is AddTxLoaded) emit(s.copyWith(date: e.date));
+    if (s is AddTxLoaded) {
+      emit(s.copyWith(date: e.date, dateError: null));
+    }
   }
 
   void _onAmount(AddTxAmountChangedEvent event, Emitter<AddTxState> emit) {
     final s = state;
-    if (s is AddTxLoaded) emit(s.copyWith(amount: event.amount));
+    if (s is AddTxLoaded) {
+      emit(s.copyWith(amount: event.amount, amountError: null));
+    }
   }
 
   void _onNote(AddTxNoteChangedEvent event, Emitter<AddTxState> emit) {
@@ -116,65 +194,146 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
     if (s is! AddTxLoaded) return;
 
     try {
+      // Validate required fields first; don't proceed if invalid.
+      final String? amountError = (() {
+        if (s.amount.trim().isEmpty) return 'Amount is required';
+        final value = double.tryParse(s.amount);
+        if (value == null || value <= 0) return 'Enter a valid amount';
+        return null;
+      })();
+
+      final String? categoryError = s.selectedCategory == null
+          ? 'Please select category'
+          : null;
+
+      final String? dateError = (s.date.isEmpty) ? 'Please pick a date' : null;
+
+      final String? moneySourceError = (() {
+        if (s.moneySource == null || s.moneySource!.isEmpty) {
+          return 'Please select money source';
+        }
+        if (s.moneySources.isEmpty) return 'No money source available';
+        return null;
+      })();
+
+      final hasError = [
+        amountError,
+        categoryError,
+        dateError,
+        moneySourceError,
+      ].any((e) => e != null);
+
+      if (hasError) {
+        emit(
+          s.copyWith(
+            amountError: amountError,
+            categoryError: categoryError,
+            dateError: dateError,
+            moneySourceError: moneySourceError,
+          ),
+        );
+        return;
+      }
+
       emit(AddTxLoading());
 
-      // 1. Lấy category được chọn
-      if (s.selectedCategoryIndex == null) {
-        throw Exception('Please select category');
-      }
-      final category = s.categories[s.selectedCategoryIndex!];
+      final CategoryEntity category = s.selectedCategory!;
 
-      // 2. Lấy moneySource được chọn (giả sử state.moneySource = name)
       final MoneySourceEntity ms = s.moneySources.firstWhere(
         (m) => m.name == s.moneySource,
         orElse: () => s.moneySources.first,
       );
 
-      // 3. Parse amount
-      final amount = double.tryParse(s.amount) ?? 0;
+      final amount = double.tryParse(s.amount)!;
 
-      // 4. Parse date
-      DateTime dateTime;
-      if (s.date.isEmpty) {
-        dateTime = DateTime.now();
-      } else {
-        dateTime = DateTime.parse(
-          s.date,
-        ); // vì DatePickerField format yyyy-MM-dd HH:mm
-      }
+      final DateTime dateTime = DateTime.parse(s.date);
 
-      // 5. Tạo TransactionEntity
+      final isIncome = s.type == TransactionType.income;
+
       final tx = TransactionEntity(
         amount: amount,
         dateTime: dateTime,
         note: s.note,
         category: category,
         moneySource: ms,
-        isIncome: s.type == TransactionType.income,
+        isIncome: isIncome,
       );
 
-      // 6. Gọi usecase lưu Firestore
-      await saveTx(tx);
+      // 1) Lưu transaction
+      if (s.isEdit) {
+        final oldTx = s.originalTx;
+        if (oldTx == null || oldTx.id == null || oldTx.id!.isEmpty) {
+          throw Exception('Original transaction missing');
+        }
 
-      // 7. Emit success while keeping the latest loaded data for the UI
-      emit(
-        AddTxSubmitSuccess(
-          tab: s.tab,
-          type: s.type,
-          categories: s.categories,
-          moneySources: s.moneySources,
-          selectedCategoryIndex: s.selectedCategoryIndex,
-          amount: s.amount,
-          date: s.date,
-          moneySource: s.moneySource,
+        final updatedTx = TransactionEntity(
+          id: oldTx.id,
+          amount: amount,
+          dateTime: dateTime,
           note: s.note,
-        ),
-      );
+          category: category,
+          moneySource: ms,
+          isIncome: isIncome,
+        );
+
+        await updateTx(oldTx: oldTx, newTx: updatedTx);
+
+        emit(
+          AddTxSubmitSuccess(
+            transaction: updatedTx,
+            tab: s.tab,
+            type: s.type,
+            categories: s.categories,
+            moneySources: s.moneySources,
+            selectedCategory: category,
+            amount: s.amount,
+            date: s.date,
+            moneySource: s.moneySource,
+            note: s.note,
+            isEdit: true,
+            originalTx: updatedTx,
+          ),
+        );
+        return;
+      } else {
+        final newId = await saveTx(tx);
+        final savedTx = TransactionEntity(
+          id: newId,
+          amount: amount,
+          dateTime: dateTime,
+          note: s.note,
+          category: category,
+          moneySource: ms,
+          isIncome: isIncome,
+        );
+
+        // 2) Cập nhật balance cho money source
+        await changeBalance(
+          moneySourceId: ms.id,
+          amount: amount,
+          isIncome: isIncome,
+        );
+
+        emit(
+          AddTxSubmitSuccess(
+            transaction: savedTx,
+            tab: s.tab,
+            type: s.type,
+            categories: s.categories,
+            moneySources: s.moneySources,
+            selectedCategory: category,
+            amount: s.amount,
+            date: s.date,
+            moneySource: s.moneySource,
+            note: s.note,
+            isEdit: false,
+            originalTx: savedTx,
+          ),
+        );
+      }
     } catch (e, st) {
-      // In log để debug
       print('AddTxBloc _onSubmit error: $e');
       print(st);
-
       emit(AddTxError(e.toString()));
     }
   }

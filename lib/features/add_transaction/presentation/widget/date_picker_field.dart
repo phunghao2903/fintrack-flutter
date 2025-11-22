@@ -11,6 +11,7 @@ class DatePickerField extends StatelessWidget {
   /// Bật chọn giờ sau khi chọn ngày
   final bool pickTime;
   final ValueChanged<String>? onDatePicked;
+  final String? errorText;
 
   /// Múi giờ 24h hay 12h không ảnh hưởng showTimePicker,
   /// nhưng bạn có thể format lại text theo ý (ở dưới).
@@ -21,6 +22,7 @@ class DatePickerField extends StatelessWidget {
     this.hint,
     this.pickTime = false,
     this.onDatePicked,
+    this.errorText,
   });
 
   Future<void> _pickDateTime(BuildContext context) async {
@@ -100,6 +102,7 @@ class DatePickerField extends StatelessWidget {
       hint: hint ?? (pickTime ? "yyyy-MM-dd HH:mm" : "yyyy-MM-dd"),
       readOnly: true,
       suffixIcon: const Icon(Icons.calendar_today, color: Colors.white),
+      errorText: errorText,
       onTap: () => _pickDateTime(context),
     );
   }
