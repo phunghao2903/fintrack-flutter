@@ -71,7 +71,7 @@ class _TransactionHistoryPageContentState
                 state.transactions.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Không tìm thấy giao dịch nào'),
+                  content: Text('No transactions found.'),
                   backgroundColor: AppColors.orange,
                 ),
               );

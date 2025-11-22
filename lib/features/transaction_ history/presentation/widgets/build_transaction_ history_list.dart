@@ -141,15 +141,21 @@ Widget _buildTransactionItem(
               Text(
                 transaction.formattedAmount,
                 style: TextStyle(
-                  color: transaction.isIncome ? AppColors.green : AppColors.red,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  color: transaction.isIncome
+                      ? AppColors.main
+                      : AppColors.orange,
+                  fontSize: AppTextStyles.body2.fontSize,
+                  fontWeight: AppTextStyles.body1.fontWeight,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 transaction.formattedTime,
-                style: TextStyle(color: AppColors.grey, fontSize: 12),
+                style: TextStyle(
+                  color: AppColors.grey,
+                  fontSize: AppTextStyles.caption.fontSize,
+                  fontWeight: AppTextStyles.caption.fontWeight,
+                ),
               ),
             ],
           ),
