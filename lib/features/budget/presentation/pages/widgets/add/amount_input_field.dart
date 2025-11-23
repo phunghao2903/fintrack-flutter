@@ -22,7 +22,7 @@ class AmountInputField extends StatelessWidget {
 
       decoration: InputDecoration(
         labelText: "Amount",
-        hintText: "0đ",
+        hintText: "\$0",
         hintStyle: const TextStyle(color: AppColors.grey),
         labelStyle: const TextStyle(color: AppColors.grey),
 

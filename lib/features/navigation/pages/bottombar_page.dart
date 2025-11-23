@@ -22,6 +22,8 @@ import 'package:fintrack/features/setting/presentation/pages/setting_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../chart/presentation/bloc/money_source/money_source_bloc.dart';
+
 class BottombarPage extends StatefulWidget {
   const BottombarPage({super.key});
 
@@ -35,27 +37,22 @@ class _BottombarPageState extends State<BottombarPage> {
     final h = SizeUtils.height(context);
     final w = SizeUtils.width(context);
     final List<Widget> _page = [
+      //Homepage
       BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
 
+      //Chartpage
       MultiBlocProvider(
         providers: [
-          BlocProvider<ChartBloc>(
-            create: (context) => sl<ChartBloc>()..add(LoadChartDataEvent()),
-          ),
-          BlocProvider<HomeBloc>(
-            create: (context) => HomeBloc()..add(LoadAcountsEvent()),
-          ),
+          BlocProvider(create: (_) => sl<ChartBloc>()),
+          BlocProvider(create: (_) => sl<MoneySourceBloc>()),
         ],
-        child: const ChartPage(),
+        child: ChartPage(),
       ),
 
-      // BlocProvider<ChartBloc>(
-      //   create: (_) => sl<ChartBloc>()..add(LoadChartDataEvent()),
-      //   child: const ChartPage(),
-      // ),
+      //AIchatpage
       AIChatPage(),
 
-      // BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
+      //Settingpage
       BlocProvider(
         create: (_) => sl<SettingBloc>()..add(LoadSettingCardsEvent()),
         child: const SettingPage(),
