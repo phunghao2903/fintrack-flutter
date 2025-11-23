@@ -47,13 +47,13 @@ Widget buildChartSection(double? totalValue, List<IncomeEntity> incomes) {
                         width: 10,
                         height: 10,
                         decoration: BoxDecoration(
-                          color: e.color,
+                          color: _getCategoryColor(e.categoryName),
                           shape: BoxShape.circle,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        e.name,
+                        e.categoryName,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -78,7 +78,7 @@ class PieChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    double total = incomes.fold(0, (sum, item) => sum + item.value);
+    double total = incomes.fold(0.0, (sum, item) => sum + item.amount);
     if (total == 0) return; // Tránh chia cho 0
     double startAngle = -math.pi / 2;
 
@@ -87,10 +87,10 @@ class PieChartPainter extends CustomPainter {
     final rect = Rect.fromCircle(center: center, radius: radius);
 
     for (var income in incomes) {
-      final sweepAngle = (income.value / total) * 2 * math.pi;
+      final sweepAngle = (income.amount / total) * 2 * math.pi;
       final paint = Paint()
         ..style = PaintingStyle.fill
-        ..color = income.color;
+        ..color = _getCategoryColor(income.categoryName);
       canvas.drawArc(rect, startAngle, sweepAngle, true, paint);
       startAngle += sweepAngle;
     }
@@ -106,4 +106,18 @@ class PieChartPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true; // Vẽ lại khi dữ liệu thay đổi
   }
+}
+
+Color _getCategoryColor(String categoryName) {
+  final category = categoryName.toLowerCase();
+  if (category.contains('food')) return Colors.red;
+  if (category.contains('taxi') || category.contains('transport'))
+    return Colors.blue;
+  if (category.contains('shopping')) return Colors.orange;
+  if (category.contains('transfer') || category.contains('salary'))
+    return Colors.green;
+  if (category.contains('entertainment')) return Colors.purple;
+  if (category.contains('health')) return Colors.pink;
+  if (category.contains('education')) return Colors.teal;
+  return AppColors.grey;
 }
