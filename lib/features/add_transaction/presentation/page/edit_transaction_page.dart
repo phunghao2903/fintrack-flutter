@@ -83,9 +83,7 @@ class _EditTransactionPageState extends State<EditTransactionPage> {
             if (state is ImageUploadSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
-                    'Image uploaded (code ${state.statusCode})',
-                  ),
+                  content: Text('Image uploaded (code ${state.statusCode})'),
                 ),
               );
             } else if (state is ImageUploadFailure) {
@@ -115,12 +113,12 @@ class _EditTransactionPageState extends State<EditTransactionPage> {
               final AddTxLoaded? s = state is AddTxLoaded
                   ? state
                   : state is ImageUploadInProgress
-                      ? state.base
-                      : state is ImageUploadSuccess
-                          ? state.base
-                          : state is ImageUploadFailure
-                              ? state.base
-                              : null;
+                  ? state.base
+                  : state is ImageUploadSuccess
+                  ? state.base
+                  : state is ImageUploadFailure
+                  ? state.base
+                  : null;
 
               if (s == null) {
                 return const SizedBox.shrink();
@@ -215,12 +213,12 @@ class _EditTransactionPageState extends State<EditTransactionPage> {
             final AddTxLoaded? baseState = state is AddTxLoaded
                 ? state
                 : state is ImageUploadInProgress
-                    ? state.base
-                    : state is ImageUploadSuccess
-                        ? state.base
-                        : state is ImageUploadFailure
-                            ? state.base
-                            : null;
+                ? state.base
+                : state is ImageUploadSuccess
+                ? state.base
+                : state is ImageUploadFailure
+                ? state.base
+                : null;
             final isImageTab = baseState?.tab == EntryTab.image;
 
             return BottomAppBar(

@@ -41,10 +41,7 @@ Future<void> initAddTransaction() async {
     ),
   );
   sl.registerLazySingleton<ImageEntryRemoteDataSource>(
-    () => ImageEntryRemoteDataSourceImpl(
-      dio: sl(),
-      webhookUrl: webhookUrl,
-    ),
+    () => ImageEntryRemoteDataSourceImpl(dio: sl(), webhookUrl: webhookUrl),
   );
   sl.registerLazySingleton<CategoryRemoteDataSource>(
     () => CategoryRemoteDataSource(

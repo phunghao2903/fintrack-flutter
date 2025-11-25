@@ -187,10 +187,7 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
     }
   }
 
-  void _onMerchant(
-    AddTxMerchantChangedEvent event,
-    Emitter<AddTxState> emit,
-  ) {
+  void _onMerchant(AddTxMerchantChangedEvent event, Emitter<AddTxState> emit) {
     final s = state;
     if (s is AddTxLoaded) {
       emit(s.copyWith(merchant: event.merchant, merchantError: null));
@@ -218,8 +215,9 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
           : null;
 
       final String? dateError = (s.date.isEmpty) ? 'Please pick a date' : null;
-      final String? merchantError =
-          s.merchant.trim().isEmpty ? 'Merchant is required' : null;
+      final String? merchantError = s.merchant.trim().isEmpty
+          ? 'Merchant is required'
+          : null;
 
       final String? moneySourceError = (() {
         if (s.moneySource == null || s.moneySource!.isEmpty) {

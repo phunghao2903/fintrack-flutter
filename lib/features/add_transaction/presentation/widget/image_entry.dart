@@ -36,10 +36,7 @@ class ImageEntry extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(15),
             child: selectedImage != null
-                ? Image.file(
-                    selectedImage!,
-                    fit: BoxFit.cover,
-                  )
+                ? Image.file(selectedImage!, fit: BoxFit.cover)
                 : Center(
                     child: Image.asset(
                       'assets/images/image_entry.png',
@@ -83,8 +80,9 @@ class ImageEntry extends StatelessWidget {
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(AppColors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.white,
+                          ),
                         ),
                       )
                     : const Text('Upload Image'),

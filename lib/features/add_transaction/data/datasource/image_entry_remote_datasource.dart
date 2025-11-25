@@ -17,10 +17,7 @@ class ImageEntryRemoteDataSourceImpl implements ImageEntryRemoteDataSource {
   final Dio dio;
   final String webhookUrl;
 
-  ImageEntryRemoteDataSourceImpl({
-    required this.dio,
-    required this.webhookUrl,
-  });
+  ImageEntryRemoteDataSourceImpl({required this.dio, required this.webhookUrl});
 
   @override
   Future<UploadImageResult> uploadImage({
