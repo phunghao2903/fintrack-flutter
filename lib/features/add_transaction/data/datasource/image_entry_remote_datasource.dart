@@ -67,9 +67,7 @@ class ImageEntryRemoteDataSourceImpl implements ImageEntryRemoteDataSource {
             );
           }
         }
-        throw Exception(
-          'Unexpected response format: ${data.runtimeType}',
-        );
+        throw Exception('Unexpected response format: ${data.runtimeType}');
       }
 
       throw Exception(

@@ -46,12 +46,7 @@ class TransactionDetailBloc
       return;
     }
 
-    emit(
-      state.copyWith(
-        isMoneySourceLoading: true,
-        moneySourceError: null,
-      ),
-    );
+    emit(state.copyWith(isMoneySourceLoading: true, moneySourceError: null));
 
     final result = await getMoneySourceById(event.moneySourceId);
     result.fold(

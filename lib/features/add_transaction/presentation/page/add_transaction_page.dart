@@ -68,11 +68,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     if (state is! AddTxLoaded) return;
 
     context.read<ImageEntryBloc>().add(
-          UploadImageRequested(
-            image: _selectedImage!,
-            moneySources: state.moneySources,
-          ),
-        );
+      UploadImageRequested(
+        image: _selectedImage!,
+        moneySources: state.moneySources,
+      ),
+    );
   }
 
   @override
@@ -84,9 +84,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         BlocProvider<AddTxBloc>(
           create: (_) => sl<AddTxBloc>()..add(AddTxInitEvent()),
         ),
-        BlocProvider<ImageEntryBloc>(
-          create: (_) => sl<ImageEntryBloc>(),
-        ),
+        BlocProvider<ImageEntryBloc>(create: (_) => sl<ImageEntryBloc>()),
       ],
       child: Scaffold(
         backgroundColor: AppColors.background,
@@ -110,15 +108,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 if (state is ImageEntryUploadSuccess) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => TransactionDetailPage(
-                        transaction: state.transaction,
-                      ),
+                      builder: (_) =>
+                          TransactionDetailPage(transaction: state.transaction),
                     ),
                   );
                 } else if (state is ImageEntryFailure) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.message)));
                 }
               },
             ),
@@ -221,8 +218,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                       height: h * 0.4,
                                       width: w,
                                       decoration: BoxDecoration(
-                                        color: AppColors.background
-                                            .withOpacity(0.25),
+                                        color: AppColors.background.withOpacity(
+                                          0.25,
+                                        ),
                                         borderRadius: BorderRadius.circular(15),
                                       ),
                                     ),
@@ -240,8 +238,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                             strokeWidth: 3,
                                             valueColor:
                                                 AlwaysStoppedAnimation<Color>(
-                                              AppColors.main,
-                                            ),
+                                                  AppColors.main,
+                                                ),
                                           ),
                                         ),
                                       ),

@@ -8,8 +8,5 @@ class UploadImageRequested extends ImageEntryEvent {
   final File image;
   final List<MoneySourceEntity> moneySources;
 
-  UploadImageRequested({
-    required this.image,
-    required this.moneySources,
-  });
+  UploadImageRequested({required this.image, required this.moneySources});
 }

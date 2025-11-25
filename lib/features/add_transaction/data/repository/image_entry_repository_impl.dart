@@ -19,8 +19,9 @@ class ImageEntryRepositoryImpl implements ImageEntryRepository {
     String userId,
     List<MoneySourceEntity> moneySources,
   ) async {
-    final serializedSources =
-        moneySources.map((e) => {'id': e.id, 'name': e.name}).toList();
+    final serializedSources = moneySources
+        .map((e) => {'id': e.id, 'name': e.name})
+        .toList();
 
     try {
       final TransactionModel model = await remoteDataSource.uploadImage(

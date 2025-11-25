@@ -118,16 +118,16 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: AppColors.background,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: AppColors.main),
-                            ),
-                            child: Text(
-                              "\$${_amountText(tx.amount)}",
-                              style: AppTextStyles.body1.copyWith(
-                                color: AppColors.white,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: AppColors.main),
+                                ),
+                                child: Text(
+                                  "\$${_amountText(tx.amount)}",
+                                  style: AppTextStyles.body1.copyWith(
+                                    color: AppColors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -136,9 +136,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
                             context,
                             label: "Category",
                             value: tx.category.name,
-                            trailing: _iconOrPlaceholder(
-                              tx.category.icon,
-                            ),
+                            trailing: _iconOrPlaceholder(tx.category.icon),
                           ),
                           SizedBox(height: h * 0.015),
                           _infoRow(
@@ -226,10 +224,10 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
                                         TransactionDetailUpdated(updated),
                                       );
                                       context.read<TransactionDetailBloc>().add(
-                                            LoadMoneySourceById(
-                                              updated.moneySource.id,
-                                            ),
-                                          );
+                                        LoadMoneySourceById(
+                                          updated.moneySource.id,
+                                        ),
+                                      );
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(

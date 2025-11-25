@@ -64,11 +64,11 @@ class _EditTransactionPageState extends State<EditTransactionPage> {
     if (state is! AddTxLoaded) return;
 
     context.read<ImageEntryBloc>().add(
-          UploadImageRequested(
-            image: _selectedImage!,
-            moneySources: state.moneySources,
-          ),
-        );
+      UploadImageRequested(
+        image: _selectedImage!,
+        moneySources: state.moneySources,
+      ),
+    );
   }
 
   @override
@@ -81,9 +81,7 @@ class _EditTransactionPageState extends State<EditTransactionPage> {
           create: (_) =>
               sl<AddTxBloc>()..add(AddTxInitEditEvent(widget.transaction)),
         ),
-        BlocProvider<ImageEntryBloc>(
-          create: (_) => sl<ImageEntryBloc>(),
-        ),
+        BlocProvider<ImageEntryBloc>(create: (_) => sl<ImageEntryBloc>()),
       ],
       child: Scaffold(
         backgroundColor: AppColors.background,
@@ -105,15 +103,14 @@ class _EditTransactionPageState extends State<EditTransactionPage> {
                 if (state is ImageEntryUploadSuccess) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => TransactionDetailPage(
-                        transaction: state.transaction,
-                      ),
+                      builder: (_) =>
+                          TransactionDetailPage(transaction: state.transaction),
                     ),
                   );
                 } else if (state is ImageEntryFailure) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.message)));
                 }
               },
             ),
