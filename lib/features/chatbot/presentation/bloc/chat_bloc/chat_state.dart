@@ -1,45 +1,32 @@
-// part of 'chat_bloc.dart';
-
-// class ChatState extends Equatable {
-//   final bool isLoading;
-//   final List<ChatMessage> messages;
-
-//   const ChatState({required this.isLoading, required this.messages});
-
-//   factory ChatState.initial() {
-//     return const ChatState(isLoading: false, messages: []);
-//   }
-
-//   ChatState copyWith({bool? isLoading, List<ChatMessage>? messages}) {
-//     return ChatState(
-//       isLoading: isLoading ?? this.isLoading,
-//       messages: messages ?? this.messages,
-//     );
-//   }
-
-//   @override
-//   List<Object?> get props => [isLoading, messages];
-// }
-
 part of 'chat_bloc.dart';
 
 class ChatState extends Equatable {
   final bool isLoading;
   final List<ChatMessage> messages;
+  final bool isBotTyping;
 
-  const ChatState({required this.isLoading, required this.messages});
+  const ChatState({
+    required this.isLoading,
+    required this.messages,
+    required this.isBotTyping,
+  });
 
   factory ChatState.initial() {
-    return const ChatState(isLoading: false, messages: []);
+    return const ChatState(isLoading: false, messages: [], isBotTyping: false);
   }
 
-  ChatState copyWith({bool? isLoading, List<ChatMessage>? messages}) {
+  ChatState copyWith({
+    bool? isLoading,
+    List<ChatMessage>? messages,
+    bool? isBotTyping,
+  }) {
     return ChatState(
       isLoading: isLoading ?? this.isLoading,
       messages: messages ?? this.messages,
+      isBotTyping: isBotTyping ?? this.isBotTyping,
     );
   }
 
   @override
-  List<Object?> get props => [isLoading, messages];
+  List<Object?> get props => [isLoading, messages, isBotTyping];
 }

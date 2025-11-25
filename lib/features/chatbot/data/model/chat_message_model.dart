@@ -1,35 +1,3 @@
-// import '../../domain/entities/chat_message.dart';
-
-// class ChatMessageModel extends ChatMessage {
-//   ChatMessageModel({
-//     required super.id,
-//     required super.uid,
-//     required super.message,
-//     required super.isUser,
-//     required super.timestamp,
-//   });
-
-//   factory ChatMessageModel.fromJson(Map<String, dynamic> json, String id) {
-//     return ChatMessageModel(
-//       id: id,
-//       uid: json['uid'],
-//       message: json['message'],
-//       isUser: json['isUser'],
-//       // isUser: (json['isUser'] as bool?) ?? false,
-//       timestamp: DateTime.parse(json['timestamp']),
-//     );
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     return {
-//       "uid": uid,
-//       "message": message,
-//       "isUser": isUser,
-//       "timestamp": timestamp.toIso8601String(),
-//     };
-//   }
-// }
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/chat_message.dart';
 

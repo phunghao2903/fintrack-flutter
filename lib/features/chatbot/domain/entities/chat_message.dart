@@ -1,24 +1,3 @@
-// import 'package:equatable/equatable.dart';
-
-// class ChatMessage extends Equatable {
-//   final String id;
-//   final String uid;
-//   final String message;
-//   final bool isUser;
-//   final DateTime timestamp;
-
-//   const ChatMessage({
-//     required this.id,
-//     required this.uid,
-//     required this.message,
-//     required this.isUser,
-//     required this.timestamp,
-//   });
-
-//   @override
-//   List<Object?> get props => [id, uid, message, isUser, timestamp];
-// }
-
 import 'package:equatable/equatable.dart';
 
 class ChatMessage extends Equatable {
