@@ -17,8 +17,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fintrack/features/notifications/presentation/page/notifications_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../money_source/presentation/bloc/money_source_bloc.dart';
-import '../../money_source/presentation/pages/money_source_page.dart';
+import '../../money_source/presentation/pages/money_source_route.dart';
 import '../../transaction_ history/presentation/pages/transaction_ history_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -244,12 +243,7 @@ class _HomePageState extends State<HomePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => BlocProvider<MoneySourceBloc>(
-                                  create: (_) => sl<MoneySourceBloc>(),
-                                  child: MoneySourcePage(
-                                    uid: uid,
-                                  ), // <-- truyền uid vào đây
-                                ),
+                                builder: (_) => MoneySourceRoute(uid: uid),
                               ),
                             );
                           },

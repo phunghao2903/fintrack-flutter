@@ -11,6 +11,7 @@ import 'domain/usecases/add_money_source.dart';
 import 'domain/usecases/get_money_sources.dart';
 import 'domain/usecases/update_money_source.dart';
 import 'domain/usecases/delete_money_source.dart';
+import 'domain/usecases/check_user_has_money_source.dart';
 
 // Bloc
 import 'presentation/bloc/money_source_bloc.dart';
@@ -53,6 +54,9 @@ Future<void> initMoneySource() async {
   );
   sl.registerLazySingleton(
     () => DeleteMoneySource(sl<MoneySourceRepositoryImpl>()),
+  );
+  sl.registerLazySingleton(
+    () => CheckUserHasMoneySourceUseCase(sl<MoneySourceRepositoryImpl>()),
   );
 
   // Bloc
