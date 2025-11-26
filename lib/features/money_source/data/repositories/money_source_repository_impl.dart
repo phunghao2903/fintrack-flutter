@@ -22,4 +22,7 @@ class MoneySourceRepositoryImpl implements MoneySourceRepository {
   @override
   Future<void> updateMoneySource(String uid, MoneySourceEntity entity) =>
       remote.updateMoneySource(uid, entity);
+
+  @override
+  Future<bool> hasMoneySources(String uid) => remote.hasMoneySources(uid);
 }

@@ -7,6 +7,7 @@ abstract class MoneySourceRemoteDataSource {
   Future<void> addMoneySource(String uid, MoneySourceEntity entity);
   Future<void> updateMoneySource(String uid, MoneySourceEntity entity);
   Future<void> deleteMoneySource(String uid, String id);
+  Future<bool> hasMoneySources(String uid);
 }
 
 class MoneySourceRemoteDataSourceImpl implements MoneySourceRemoteDataSource {
@@ -47,5 +48,11 @@ class MoneySourceRemoteDataSourceImpl implements MoneySourceRemoteDataSource {
           ),
         )
         .toList();
+  }
+
+  @override
+  Future<bool> hasMoneySources(String uid) async {
+    final snapshot = await getCollection(uid).limit(1).get();
+    return snapshot.docs.isNotEmpty;
   }
 }

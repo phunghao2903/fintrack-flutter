@@ -5,4 +5,5 @@ abstract class MoneySourceRepository {
   Future<void> addMoneySource(String uid, MoneySourceEntity entity);
   Future<void> updateMoneySource(String uid, MoneySourceEntity entity);
   Future<void> deleteMoneySource(String uid, String id);
+  Future<bool> hasMoneySources(String uid);
 }
