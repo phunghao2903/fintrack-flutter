@@ -1,4 +1,3 @@
-
 import 'package:fintrack/features/chart/presentation/widgets/account_item.dart';
 import 'package:fintrack/features/chart/presentation/widgets/chart_view.dart';
 import 'package:fintrack/features/chart/presentation/widgets/filter_button.dart';
@@ -68,9 +67,10 @@ class _ChartPageState extends State<ChartPage> {
                       BlocBuilder<ChartBloc, ChartState>(
                         builder: (context, state) {
                           final name =
-                              state.chartData.isEmpty && state.userName == 'User'
-                                  ? '...'
-                                  : state.userName;
+                              state.chartData.isEmpty &&
+                                  state.userName == 'User'
+                              ? '...'
+                              : state.userName;
                           return Text(
                             name,
                             style: AppTextStyles.body1.copyWith(

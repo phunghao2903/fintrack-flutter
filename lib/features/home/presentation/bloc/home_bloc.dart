@@ -9,10 +9,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetMoneySourcesUseCase getMoneySourcesUseCase;
   final GetCurrentUser getCurrentUser;
 
-  HomeBloc({
-    required this.getMoneySourcesUseCase,
-    required this.getCurrentUser,
-  }) : super(HomeInitial()) {
+  HomeBloc({required this.getMoneySourcesUseCase, required this.getCurrentUser})
+    : super(HomeInitial()) {
     on<HomeStarted>(_onStarted);
   }
 
@@ -21,16 +19,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     try {
       final userResult = await getCurrentUser();
       String userName = 'User';
-      userResult.fold(
-        (_) {},
-        (user) {
-          if (user.fullName.isNotEmpty) {
-            userName = user.fullName;
-          } else if (user.email.isNotEmpty) {
-            userName = user.email;
-          }
-        },
-      );
+      userResult.fold((_) {}, (user) {
+        if (user.fullName.isNotEmpty) {
+          userName = user.fullName;
+        } else if (user.email.isNotEmpty) {
+          userName = user.email;
+        }
+      });
 
       final sources = await getMoneySourcesUseCase();
       final total = sources.fold<double>(

@@ -10,10 +10,8 @@ class ChartBloc extends Bloc<ChartEvent, ChartState> {
   final GetChartDataUseCase getChartDataUseCase;
   final GetCurrentUser getCurrentUser;
 
-  ChartBloc({
-    required this.getChartDataUseCase,
-    required this.getCurrentUser,
-  }) : super(ChartState.initial()) {
+  ChartBloc({required this.getChartDataUseCase, required this.getCurrentUser})
+    : super(ChartState.initial()) {
     on<LoadChartDataEvent>(_onLoadData);
     on<ChangeFilterEvent>(_onChangeFilter);
   }
@@ -24,16 +22,13 @@ class ChartBloc extends Bloc<ChartEvent, ChartState> {
   ) async {
     final userResult = await getCurrentUser();
     var userName = state.userName;
-    userResult.fold(
-      (_) {},
-      (user) {
-        if (user.fullName.isNotEmpty) {
-          userName = user.fullName;
-        } else if (user.email.isNotEmpty) {
-          userName = user.email;
-        }
-      },
-    );
+    userResult.fold((_) {}, (user) {
+      if (user.fullName.isNotEmpty) {
+        userName = user.fullName;
+      } else if (user.email.isNotEmpty) {
+        userName = user.email;
+      }
+    });
 
     final data = await getChartDataUseCase(state.selectedFilter);
     final incomeChange = calculateChange(data.map((e) => e.income).toList());

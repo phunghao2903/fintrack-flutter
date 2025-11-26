@@ -18,16 +18,13 @@ class SettingBloc extends Bloc<SettingEvent, SettingState> {
     on<LoadSettingCardsEvent>((event, emit) async {
       final userResult = await getCurrentUser();
       var userName = 'User';
-      userResult.fold(
-        (_) {},
-        (user) {
-          if (user.fullName.isNotEmpty) {
-            userName = user.fullName;
-          } else if (user.email.isNotEmpty) {
-            userName = user.email;
-          }
-        },
-      );
+      userResult.fold((_) {}, (user) {
+        if (user.fullName.isNotEmpty) {
+          userName = user.fullName;
+        } else if (user.email.isNotEmpty) {
+          userName = user.email;
+        }
+      });
 
       final cards = getSettingCardsUseCase();
       emit(SettingLoaded(cards: cards, userName: userName));
