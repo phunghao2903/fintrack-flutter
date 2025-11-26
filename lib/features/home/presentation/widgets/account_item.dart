@@ -1,17 +1,13 @@
 import 'package:fintrack/core/theme/app_colors.dart';
 import 'package:fintrack/core/theme/app_text_styles.dart';
 import 'package:fintrack/core/utils/size_utils.dart';
+import 'package:fintrack/features/chart/domain/entities/money_source_entity.dart';
 import 'package:flutter/material.dart';
 
 class AccountItem extends StatelessWidget {
-  final String images;
-  final String money;
-  final String resource;
-  AccountItem({
-    required this.images,
-    required this.money,
-    required this.resource,
-  });
+  final MoneySourceEntity moneySource;
+
+  const AccountItem({super.key, required this.moneySource});
 
   @override
   Widget build(BuildContext context) {
@@ -32,18 +28,17 @@ class AccountItem extends StatelessWidget {
             vertical: h * 0.02,
           ),
           child: Column(
-            // mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.asset(images),
+              Image.asset(moneySource.icon),
               SizedBox(height: h * 0.01),
               Text(
-                money,
+                '\$${moneySource.balance.toStringAsFixed(2)}',
                 style: AppTextStyles.body1.copyWith(color: AppColors.white),
               ),
               SizedBox(height: h * 0.01),
               Text(
-                resource,
+                moneySource.name,
                 style: AppTextStyles.caption.copyWith(color: AppColors.grey),
               ),
             ],

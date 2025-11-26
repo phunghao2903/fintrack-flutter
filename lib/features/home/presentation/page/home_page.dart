@@ -2,16 +2,18 @@ import 'package:fintrack/core/theme/app_colors.dart';
 import 'package:fintrack/core/theme/app_text_styles.dart';
 import 'package:fintrack/core/utils/size_utils.dart';
 import 'package:fintrack/features/budget/presentation/pages/budget_route.dart';
-import 'package:fintrack/features/home/bloc/home_bloc.dart';
-import 'package:fintrack/features/home/pages/account_item.dart';
-import 'package:fintrack/features/home/pages/my_pie_chart.dart';
-import 'package:fintrack/features/home/pages/transaction_history.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fintrack/features/home/presentation/bloc/home_bloc.dart';
+import 'package:fintrack/features/home/presentation/bloc/home_event.dart';
+import 'package:fintrack/features/home/presentation/bloc/home_state.dart';
+import 'package:fintrack/features/home/presentation/widgets/account_item.dart';
+import 'package:fintrack/features/home/presentation/widgets/my_pie_chart.dart';
+import 'package:fintrack/features/home/presentation/widgets/transaction_history.dart';
 import 'package:fintrack/features/notifications/presentation/page/notifications_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../money_source/presentation/pages/money_source_route.dart';
-import '../../transaction_ history/presentation/pages/transaction_ history_page.dart';
+import 'package:fintrack/features/money_source/presentation/pages/money_source_route.dart';
+import 'package:fintrack/features/transaction_ history/presentation/pages/transaction_ history_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    context.read<HomeBloc>().add(LoadAcountsEvent());
+    context.read<HomeBloc>().add(HomeStarted());
   }
 
   @override
@@ -36,7 +38,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Container(
+      body: SizedBox(
         height: h,
         width: w,
         child: Padding(
@@ -53,18 +55,28 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Row(
                         children: [
-                          CircleAvatar(
+                          const CircleAvatar(
                             backgroundImage: AssetImage(
-                              "assets/images/avartar.png",
+                              'assets/images/avartar.png',
                             ),
                             radius: 20,
                           ),
                           SizedBox(width: w * 0.02),
-                          Text(
-                            "Phung Hao",
-                            style: AppTextStyles.body1.copyWith(
-                              color: AppColors.grey,
-                            ),
+                          BlocBuilder<HomeBloc, HomeState>(
+                            builder: (context, state) {
+                              String displayName = 'User';
+                              if (state is HomeLoaded) {
+                                displayName = state.userName;
+                              } else if (state is HomeLoading) {
+                                displayName = '...';
+                              }
+                              return Text(
+                                displayName,
+                                style: AppTextStyles.body1.copyWith(
+                                  color: AppColors.grey,
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -79,7 +91,7 @@ class _HomePageState extends State<HomePage> {
                         },
                         child: Row(
                           children: [
-                            Image.asset("assets/icons/notification.png"),
+                            Image.asset('assets/icons/notification.png'),
                           ],
                         ),
                       ),
@@ -89,7 +101,7 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     children: [
                       Text(
-                        "Balance",
+                        'Balance',
                         style: AppTextStyles.heading1.copyWith(
                           color: AppColors.white,
                         ),
@@ -99,11 +111,33 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(height: h * 0.01),
                   Row(
                     children: [
-                      Text(
-                        "\$2408.45",
-                        style: AppTextStyles.heading1.copyWith(
-                          color: AppColors.main,
-                        ),
+                      BlocBuilder<HomeBloc, HomeState>(
+                        builder: (context, state) {
+                          if (state is HomeLoaded) {
+                            return Text(
+                              '\$${state.totalBalance.toStringAsFixed(2)}',
+                              style: AppTextStyles.heading1.copyWith(
+                                color: AppColors.main,
+                              ),
+                            );
+                          }
+                          if (state is HomeLoading) {
+                            return SizedBox(
+                              height: h * 0.04,
+                              width: h * 0.04,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.main,
+                              ),
+                            );
+                          }
+                          return Text(
+                            '\$0.00',
+                            style: AppTextStyles.heading1.copyWith(
+                              color: AppColors.main,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -128,21 +162,21 @@ class _HomePageState extends State<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Well done!",
+                                  'Well done!',
                                   style: AppTextStyles.heading2.copyWith(
                                     color: AppColors.white,
                                   ),
                                 ),
                                 SizedBox(height: h * 0.01),
                                 Text(
-                                  "Your spending reduced by 2% from last month ",
+                                  'Your spending reduced by 2% from last month ',
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppColors.grey,
                                   ),
                                 ),
                                 SizedBox(height: h * 0.01),
                                 Text(
-                                  "View Details",
+                                  'View Details',
                                   style: AppTextStyles.body2.copyWith(
                                     color: AppColors.main,
                                   ),
@@ -150,57 +184,55 @@ class _HomePageState extends State<HomePage> {
                               ],
                             ),
                           ),
-                          Expanded(
+                          const Expanded(
                             flex: 1,
-                            child: Column(
-                              children: [
-                                MyPieChart(),
-                                // Text(
-                                //   "View Details",
-                                //   style: AppTextStyles.body2.copyWith(
-                                //     color: AppColors.main,
-                                //   ),
-                                // ),
-                              ],
-                            ),
+                            child: Column(children: [MyPieChart()]),
                           ),
                         ],
                       ),
                     ),
                   ),
-
                   SizedBox(height: h * 0.02),
-
                   Row(
                     children: [
                       Expanded(
-                        child: Container(
+                        child: SizedBox(
                           height: h * 0.17,
                           child: BlocBuilder<HomeBloc, HomeState>(
                             builder: (context, state) {
-                              if (state is HomeLoadedAccount) {
+                              if (state is HomeLoaded) {
                                 return ListView.builder(
                                   scrollDirection: Axis.horizontal,
-                                  itemCount: state.listAccount.length,
+                                  itemCount: state.moneySources.length,
                                   itemBuilder: (context, index) {
-                                    final product = state.listAccount[index];
-                                    return AccountItem(
-                                      images: product.images,
-                                      money: product.money,
-                                      resource: product.resource,
-                                    );
+                                    final source = state.moneySources[index];
+                                    return AccountItem(moneySource: source);
                                   },
                                 );
-                              } else {
-                                return SizedBox();
+                              } else if (state is HomeLoading) {
+                                return const Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.main,
+                                  ),
+                                );
+                              } else if (state is HomeError) {
+                                return Center(
+                                  child: Text(
+                                    state.message,
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.brightOrange,
+                                    ),
+                                  ),
+                                );
                               }
+                              return const SizedBox.shrink();
                             },
                           ),
                         ),
                       ),
                     ],
                   ),
-
                   SizedBox(height: h * 0.02),
                   Container(
                     height: h * 0.09,
@@ -212,8 +244,7 @@ class _HomePageState extends State<HomePage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Image.asset("assets/icons/swap.png"),
-                        // Image.asset("assets/icons/analyst.png"),
+                        Image.asset('assets/icons/swap.png'),
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -223,10 +254,8 @@ class _HomePageState extends State<HomePage> {
                               ),
                             );
                           },
-                          child: Image.asset("assets/icons/analyst.png"),
+                          child: Image.asset('assets/icons/analyst.png'),
                         ),
-
-                        // Image.asset("assets/icons/deposit.png"),
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -236,17 +265,16 @@ class _HomePageState extends State<HomePage> {
                               ),
                             );
                           },
-                          child: Image.asset("assets/icons/deposit.png"),
+                          child: Image.asset('assets/icons/deposit.png'),
                         ),
 
-                        Image.asset("assets/icons/buy.png"),
-                        Image.asset("assets/icons/add.png"),
+                        Image.asset('assets/icons/buy.png'),
+                        Image.asset('assets/icons/add.png'),
                       ],
                     ),
                   ),
                   SizedBox(height: h * 0.02),
                   Container(
-                    // height: h*0.1,
                     width: w * 0.9,
                     decoration: BoxDecoration(
                       color: AppColors.widget,
@@ -264,7 +292,7 @@ class _HomePageState extends State<HomePage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "Transaction History",
+                                'Transaction History',
                                 style: AppTextStyles.body1.copyWith(
                                   color: AppColors.white,
                                 ),
@@ -280,7 +308,7 @@ class _HomePageState extends State<HomePage> {
                                   );
                                 },
                                 child: Text(
-                                  "See All",
+                                  'See All',
                                   style: AppTextStyles.caption.copyWith(
                                     color: AppColors.grey,
                                   ),
@@ -295,7 +323,7 @@ class _HomePageState extends State<HomePage> {
                               Column(
                                 children: [
                                   Text(
-                                    "All",
+                                    'All',
                                     style: AppTextStyles.body2.copyWith(
                                       color: AppColors.main,
                                     ),
@@ -308,13 +336,13 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                               Text(
-                                "Spending",
+                                'Spending',
                                 style: AppTextStyles.body2.copyWith(
                                   color: AppColors.grey,
                                 ),
                               ),
                               Text(
-                                "Income",
+                                'Income',
                                 style: AppTextStyles.body2.copyWith(
                                   color: AppColors.grey,
                                 ),
@@ -322,11 +350,10 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                           SizedBox(height: h * 0.02),
-
                           Row(
                             children: [
                               Text(
-                                "2 July 2025",
+                                '2 July 2025',
                                 style: AppTextStyles.caption.copyWith(
                                   color: AppColors.grey,
                                 ),
@@ -345,20 +372,20 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               Row(
                                 children: [
-                                  Image.asset("assets/icons/taxi.png"),
+                                  Image.asset('assets/icons/taxi.png'),
                                   SizedBox(width: w * 0.03),
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Taxi",
+                                        'Taxi',
                                         style: AppTextStyles.body2.copyWith(
                                           color: AppColors.white,
                                         ),
                                       ),
                                       Text(
-                                        "Uber",
+                                        'Uber',
                                         style: AppTextStyles.caption.copyWith(
                                           color: AppColors.grey,
                                         ),
@@ -374,13 +401,13 @@ class _HomePageState extends State<HomePage> {
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        "-\$15",
+                                        '-\$15',
                                         style: AppTextStyles.body2.copyWith(
                                           color: AppColors.brightOrange,
                                         ),
                                       ),
                                       Text(
-                                        "8:25 pm",
+                                        '8:25 pm',
                                         style: AppTextStyles.caption.copyWith(
                                           color: AppColors.grey,
                                         ),
@@ -392,13 +419,13 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                           SizedBox(height: h * 0.02),
-                          Divider(),
+                          const Divider(),
                           SizedBox(height: h * 0.02),
-                          TransactionHistory(),
+                          const TransactionHistory(),
                           SizedBox(height: h * 0.02),
-                          Divider(),
+                          const Divider(),
                           SizedBox(height: h * 0.02),
-                          TransactionHistory(),
+                          const TransactionHistory(),
                         ],
                       ),
                     ),

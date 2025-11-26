@@ -18,7 +18,7 @@ class MyPieChart extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           PieChart(
-            swapAnimationDuration: Duration(milliseconds: 800),
+            swapAnimationDuration: const Duration(milliseconds: 800),
             PieChartData(
               startDegreeOffset: 45,
               sectionsSpace: 0,
@@ -33,11 +33,8 @@ class MyPieChart extends StatelessWidget {
                 PieChartSectionData(
                   value: 35,
                   radius: 15,
-                  color: Color(0xFF425B39),
-
+                  color: const Color(0xFF425B39),
                   showTitle: false,
-
-                  // round
                 ),
               ],
             ),
@@ -45,13 +42,13 @@ class MyPieChart extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Text(
+              //   '\$75',
+              //   style: AppTextStyles.heading2.copyWith(color: AppColors.white),
+              // ),
               Text(
-                "\$75",
-                style: AppTextStyles.heading2.copyWith(color: AppColors.white),
-              ),
-              Text(
-                "Saved",
-                style: AppTextStyles.caption.copyWith(color: AppColors.white),
+                'Saved',
+                style: AppTextStyles.body1.copyWith(color: AppColors.white),
               ),
             ],
           ),
