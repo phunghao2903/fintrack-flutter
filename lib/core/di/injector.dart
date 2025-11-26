@@ -17,6 +17,8 @@ import 'package:fintrack/features/transaction_%20history/transaction_history_inj
 import 'package:fintrack/features/setting/setting_injection.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../features/chatbot/ai_chat_injection.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -24,9 +26,8 @@ Future<void> init() async {
   await injectBudgets();
   await initChartFeature();
   await initSettingFeature();
-  // await injectChart();
-  // await initBudget();
   await initExpenses();
   await initIncome();
   await initTransactionHistory();
+  await initChatbotModule();
 }

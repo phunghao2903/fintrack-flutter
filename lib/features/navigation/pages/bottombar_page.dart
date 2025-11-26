@@ -1,15 +1,11 @@
 import 'package:fintrack/core/theme/app_colors.dart';
 import 'package:fintrack/core/utils/size_utils.dart';
-import 'package:fintrack/features/add_transaction/presentation/bloc/add_tx_bloc.dart';
-import 'package:fintrack/features/add_transaction/presentation/bloc/add_tx_event.dart';
+
 import 'package:fintrack/features/add_transaction/presentation/page/add_transaction_page.dart';
-import 'package:fintrack/features/ai_chat/presentation/page/ai_chat_page.dart';
-import 'package:fintrack/features/auth/presentation/page/sign_up_page.dart';
+
 import 'package:fintrack/features/chart/chart_injection.dart';
 // import 'package:fintrack/features/chart/bloc/chart_bloc.dart';
-import 'package:fintrack/features/chart/data/datasources/chart_data_source.dart';
-import 'package:fintrack/features/chart/data/repositories/chart_repository_impl.dart';
-import 'package:fintrack/features/chart/domain/usecases/get_chart_data_usecase.dart';
+
 // import 'package:fintrack/features/chart/pages/chart_page.dart';
 import 'package:fintrack/features/chart/presentation/bloc/chart_bloc.dart';
 import 'package:fintrack/features/chart/presentation/pages/chart_page.dart';
@@ -19,10 +15,14 @@ import 'package:fintrack/features/navigation/bloc/bottom_bloc.dart';
 import 'package:fintrack/features/navigation/pages/bottom_nav_item.dart';
 import 'package:fintrack/features/setting/presentation/bloc/setting_bloc.dart';
 import 'package:fintrack/features/setting/presentation/pages/setting_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../chart/presentation/bloc/money_source/money_source_bloc.dart';
+import '../../chatbot/presentation/bloc/chat_bloc/chat_bloc.dart';
+import '../../chatbot/presentation/bloc/chat_detail_bloc/chat_detail_bloc.dart';
+import '../../chatbot/presentation/page/chat_detail_page.dart';
 
 class BottombarPage extends StatefulWidget {
   const BottombarPage({super.key});
@@ -36,6 +36,8 @@ class _BottombarPageState extends State<BottombarPage> {
   Widget build(BuildContext context) {
     final h = SizeUtils.height(context);
     final w = SizeUtils.width(context);
+
+    final uid = FirebaseAuth.instance.currentUser!.uid;
     final List<Widget> _page = [
       //Homepage
       BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
@@ -50,7 +52,14 @@ class _BottombarPageState extends State<BottombarPage> {
       ),
 
       //AIchatpage
-      AIChatPage(),
+      // AIChatPage(),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => sl<ChatBloc>()),
+          BlocProvider(create: (_) => sl<ChatDetailBloc>()),
+        ],
+        child: ChatDetailPage(uid: uid),
+      ),
 
       //Settingpage
       BlocProvider(
