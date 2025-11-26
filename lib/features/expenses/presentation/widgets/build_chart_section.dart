@@ -115,7 +115,7 @@ class PieChartPainter extends CustomPainter {
 // Helper color mapping for categories
 Color _getCategoryColor(String categoryName) {
   final category = categoryName.toLowerCase();
-  if (category.contains('food')) return AppColors.orange;
+  if (category.contains('fnb')) return AppColors.orange;
   if (category.contains('taxi')) return AppColors.blue;
   if (category.contains('shopping')) return AppColors.red;
   if (category.contains('health')) return AppColors.turquoise;
