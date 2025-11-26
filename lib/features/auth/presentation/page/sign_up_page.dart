@@ -1,3 +1,4 @@
+import 'package:fintrack/core/di/injector.dart' as di;
 import 'package:fintrack/core/theme/app_colors.dart';
 import 'package:fintrack/core/theme/app_text_styles.dart';
 import 'package:fintrack/core/utils/size_utils.dart';
@@ -11,7 +12,8 @@ import 'package:fintrack/features/auth/domain/usecases/sign_up.dart';
 import 'package:fintrack/features/auth/domain/usecases/sign_in_with_google.dart';
 import 'package:fintrack/features/auth/domain/usecases/validate_email.dart';
 import 'package:fintrack/features/auth/domain/usecases/validate_password.dart';
-import 'package:fintrack/features/home/pages/home_page.dart';
+import 'package:fintrack/features/home/presentation/bloc/home_bloc.dart';
+import 'package:fintrack/features/home/presentation/page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -71,7 +73,12 @@ class _SignUpViewState extends State<_SignUpView> {
         if (state.isAuthenticated) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomePage()),
+            MaterialPageRoute(
+              builder: (context) => BlocProvider(
+                create: (_) => di.sl<HomeBloc>(),
+                child: const HomePage(),
+              ),
+            ),
           );
         }
         if (state.errorMessage != null) {

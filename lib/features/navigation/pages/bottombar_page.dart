@@ -1,16 +1,13 @@
+import 'package:fintrack/core/di/injector.dart' as di;
 import 'package:fintrack/core/theme/app_colors.dart';
 import 'package:fintrack/core/utils/size_utils.dart';
 
 import 'package:fintrack/features/add_transaction/presentation/page/add_transaction_page.dart';
 
-import 'package:fintrack/features/chart/chart_injection.dart';
-// import 'package:fintrack/features/chart/bloc/chart_bloc.dart';
-
-// import 'package:fintrack/features/chart/pages/chart_page.dart';
 import 'package:fintrack/features/chart/presentation/bloc/chart_bloc.dart';
 import 'package:fintrack/features/chart/presentation/pages/chart_page.dart';
-import 'package:fintrack/features/home/bloc/home_bloc.dart';
-import 'package:fintrack/features/home/pages/home_page.dart';
+import 'package:fintrack/features/home/presentation/bloc/home_bloc.dart';
+import 'package:fintrack/features/home/presentation/page/home_page.dart';
 import 'package:fintrack/features/navigation/bloc/bottom_bloc.dart';
 import 'package:fintrack/features/navigation/pages/bottom_nav_item.dart';
 import 'package:fintrack/features/setting/presentation/bloc/setting_bloc.dart';
@@ -40,13 +37,16 @@ class _BottombarPageState extends State<BottombarPage> {
     final uid = FirebaseAuth.instance.currentUser!.uid;
     final List<Widget> _page = [
       //Homepage
-      BlocProvider(create: (context) => HomeBloc(), child: HomePage()),
+      BlocProvider(
+        create: (context) => di.sl<HomeBloc>(),
+        child: const HomePage(),
+      ),
 
       //Chartpage
       MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => sl<ChartBloc>()),
-          BlocProvider(create: (_) => sl<MoneySourceBloc>()),
+          BlocProvider(create: (_) => di.sl<ChartBloc>()),
+          BlocProvider(create: (_) => di.sl<MoneySourceBloc>()),
         ],
         child: ChartPage(),
       ),
@@ -55,15 +55,15 @@ class _BottombarPageState extends State<BottombarPage> {
       // AIChatPage(),
       MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => sl<ChatBloc>()),
-          BlocProvider(create: (_) => sl<ChatDetailBloc>()),
+          BlocProvider(create: (_) => di.sl<ChatBloc>()),
+          BlocProvider(create: (_) => di.sl<ChatDetailBloc>()),
         ],
         child: ChatDetailPage(uid: uid),
       ),
 
       //Settingpage
       BlocProvider(
-        create: (_) => sl<SettingBloc>()..add(LoadSettingCardsEvent()),
+        create: (_) => di.sl<SettingBloc>()..add(LoadSettingCardsEvent()),
         child: const SettingPage(),
       ),
     ];

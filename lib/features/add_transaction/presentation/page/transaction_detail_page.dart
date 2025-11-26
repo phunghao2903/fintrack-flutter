@@ -6,8 +6,6 @@ import 'package:fintrack/features/add_transaction/domain/entities/transaction_en
 import 'package:fintrack/features/add_transaction/presentation/bloc/transaction_detail_bloc.dart';
 import 'package:fintrack/features/add_transaction/presentation/bloc/transaction_detail_event.dart';
 import 'package:fintrack/features/add_transaction/presentation/bloc/transaction_detail_state.dart';
-import 'package:fintrack/features/home/bloc/home_bloc.dart';
-import 'package:fintrack/features/home/pages/home_page.dart';
 import 'package:fintrack/features/navigation/pages/bottombar_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

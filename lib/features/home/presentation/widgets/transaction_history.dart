@@ -14,17 +14,17 @@ class TransactionHistory extends StatelessWidget {
       children: [
         Row(
           children: [
-            Image.asset("assets/icons/food.png"),
+            Image.asset('assets/icons/food.png'),
             SizedBox(width: w * 0.03),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Taxi",
+                  'Taxi',
                   style: AppTextStyles.body2.copyWith(color: AppColors.white),
                 ),
                 Text(
-                  "Uber",
+                  'Uber',
                   style: AppTextStyles.caption.copyWith(color: AppColors.grey),
                 ),
               ],
@@ -38,11 +38,11 @@ class TransactionHistory extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  "+\$350",
+                  '+\$350',
                   style: AppTextStyles.body2.copyWith(color: AppColors.main),
                 ),
                 Text(
-                  "9:45 pm",
+                  '9:45 pm',
                   style: AppTextStyles.caption.copyWith(color: AppColors.grey),
                 ),
               ],
