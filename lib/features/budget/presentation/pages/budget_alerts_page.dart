@@ -6,7 +6,7 @@ import 'package:fintrack/core/services/n8n_service.dart';
 
 class BudgetAlertsPage extends StatefulWidget {
   final String userId;
-  
+
   const BudgetAlertsPage({super.key, required this.userId});
 
   @override
@@ -40,10 +40,10 @@ class _BudgetAlertsPageState extends State<BudgetAlertsPage> {
   Future<void> _fetchData() async {
     try {
       final result = await _n8nService.fetchBudgetAlerts(widget.userId);
-      
+
       // Dữ liệu từ n8n trả về dạng: ui_data.your_budgets, ui_data.near_limit, ui_data.exceeded_budgets
       final uiData = result['ui_data'] ?? result;
-      
+
       setState(() {
         _yourBudgets = uiData['your_budgets'] ?? [];
         _nearLimit = uiData['near_limit'] ?? [];
@@ -152,14 +152,14 @@ class _BudgetAlertsPageState extends State<BudgetAlertsPage> {
               final category = budget['category'] ?? 'Unknown';
               final limit = _parseDouble(budget['limit']);
               final percent = _parseDouble(budget['percent']);
-              
+
               return Padding(
                 padding: EdgeInsets.only(bottom: h * 0.02),
                 child: _buildBudgetCard(
-                  context, 
-                  category, 
-                  limit, 
-                  percent / 100, 
+                  context,
+                  category,
+                  limit,
+                  percent / 100,
                   AppColors.main,
                 ),
               );
@@ -186,8 +186,10 @@ class _BudgetAlertsPageState extends State<BudgetAlertsPage> {
                     final category = item['category'] ?? 'Unknown';
                     final budget = _parseDouble(item['budget']);
                     final spent = _parseDouble(item['spent']);
-                    final remaining = _parseDouble(item['remaining'] ?? (budget - spent));
-                    
+                    final remaining = _parseDouble(
+                      item['remaining'] ?? (budget - spent),
+                    );
+
                     return Column(
                       children: [
                         _buildAlertItem(
@@ -229,8 +231,10 @@ class _BudgetAlertsPageState extends State<BudgetAlertsPage> {
                     final category = item['category'] ?? 'Unknown';
                     final budget = _parseDouble(item['budget']);
                     final spent = _parseDouble(item['spent']);
-                    final overspentBy = _parseDouble(item['overspentBy'] ?? (spent - budget));
-                    
+                    final overspentBy = _parseDouble(
+                      item['overspentBy'] ?? (spent - budget),
+                    );
+
                     return Column(
                       children: [
                         _buildAlertItem(
@@ -262,19 +266,25 @@ class _BudgetAlertsPageState extends State<BudgetAlertsPage> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle_outline, color: AppColors.green, size: 32),
+                    Icon(
+                      Icons.check_circle_outline,
+                      color: AppColors.green,
+                      size: 32,
+                    ),
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         "Great! All your budgets are within the allowed range.",
-                        style: AppTextStyles.body2.copyWith(color: AppColors.grey),
+                        style: AppTextStyles.body2.copyWith(
+                          color: AppColors.grey,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
             ],
-            
+
             SizedBox(height: h * 0.04),
           ],
         ),
@@ -294,7 +304,7 @@ class _BudgetAlertsPageState extends State<BudgetAlertsPage> {
     final progressColor = progress > 1.0 ? AppColors.red : color;
     // Giới hạn progress để hiển thị tối đa 100% trên thanh
     final displayProgress = progress > 1.0 ? 1.0 : progress;
-    
+
     return Container(
       padding: EdgeInsets.all(w * 0.04),
       decoration: BoxDecoration(
@@ -342,9 +352,9 @@ class _BudgetAlertsPageState extends State<BudgetAlertsPage> {
     String title,
     double budget,
     double spent,
-    double diff,
-    {required bool isExceeded}
-  ) {
+    double diff, {
+    required bool isExceeded,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -377,11 +387,15 @@ class _BudgetAlertsPageState extends State<BudgetAlertsPage> {
                     children: [
                       TextSpan(
                         text: "Budget: ",
-                        style: AppTextStyles.caption.copyWith(color: AppColors.green),
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.green,
+                        ),
                       ),
                       TextSpan(
                         text: "\$${budget.toInt()}",
-                        style: AppTextStyles.caption.copyWith(color: AppColors.green),
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.green,
+                        ),
                       ),
                     ],
                   ),
@@ -391,11 +405,15 @@ class _BudgetAlertsPageState extends State<BudgetAlertsPage> {
                     children: [
                       TextSpan(
                         text: "Spent: ",
-                        style: AppTextStyles.caption.copyWith(color: AppColors.orange),
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.orange,
+                        ),
                       ),
                       TextSpan(
                         text: "\$${spent.toInt()}",
-                        style: AppTextStyles.caption.copyWith(color: AppColors.orange),
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.orange,
+                        ),
                       ),
                     ],
                   ),

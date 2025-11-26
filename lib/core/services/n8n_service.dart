@@ -17,7 +17,7 @@ class N8nService {
   // ============================================================
   Future<Map<String, dynamic>> fetchBudgetSuggestions(String userId) async {
     final url = Uri.parse('$_baseUrl/budget-suggestions?userId=$userId');
-    
+
     try {
       final response = await http.get(url);
 
@@ -42,7 +42,7 @@ class N8nService {
   // ============================================================
   Future<Map<String, dynamic>> fetchMonthlyReport(String userId) async {
     final url = Uri.parse('$_baseUrl/monthly-report?userId=$userId');
-    
+
     try {
       final response = await http.get(url);
 
@@ -53,7 +53,9 @@ class N8nService {
         }
         return data as Map<String, dynamic>;
       } else {
-        throw Exception('Failed to load monthly report: ${response.statusCode}');
+        throw Exception(
+          'Failed to load monthly report: ${response.statusCode}',
+        );
       }
     } catch (e) {
       throw Exception('Error connecting to n8n: $e');
@@ -66,7 +68,7 @@ class N8nService {
   // ============================================================
   Future<Map<String, dynamic>> fetchBudgetAlerts(String userId) async {
     final url = Uri.parse('$_baseUrl/budget-alerts?userId=$userId');
-    
+
     try {
       final response = await http.get(url);
 

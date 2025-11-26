@@ -6,7 +6,7 @@ import 'package:fintrack/core/services/n8n_service.dart';
 
 class BudgetSuggestionsPage extends StatefulWidget {
   final String userId;
-  
+
   const BudgetSuggestionsPage({super.key, required this.userId});
 
   @override
@@ -78,18 +78,28 @@ class _BudgetSuggestionsPageState extends State<BudgetSuggestionsPage> {
           children: [
             Text(
               "Budget",
-              style: AppTextStyles.heading1.copyWith(color: AppColors.white, fontSize: 24),
+              style: AppTextStyles.heading1.copyWith(
+                color: AppColors.white,
+                fontSize: 24,
+              ),
             ),
             Text(
               "Suggestions",
-              style: AppTextStyles.heading1.copyWith(color: AppColors.white, fontSize: 24),
+              style: AppTextStyles.heading1.copyWith(
+                color: AppColors.white,
+                fontSize: 24,
+              ),
             ),
           ],
         ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: Icon(Icons.lightbulb_outline, color: AppColors.main, size: 32),
+            child: Icon(
+              Icons.lightbulb_outline,
+              color: AppColors.main,
+              size: 32,
+            ),
           ),
         ],
       ),
@@ -165,23 +175,23 @@ class _BudgetSuggestionsPageState extends State<BudgetSuggestionsPage> {
               final limit = (budget['limit'] ?? 1).toDouble();
               final percent = (budget['percent'] ?? 0).toDouble();
               final status = budget['status'] as String?;
-              final color = status != null 
-                  ? _getColorFromStatus(status) 
+              final color = status != null
+                  ? _getColorFromStatus(status)
                   : _getColorFromPercent(percent);
-              
+
               return Padding(
                 padding: EdgeInsets.only(bottom: h * 0.02),
                 child: _buildBudgetUsageCard(
-                  context, 
-                  category, 
-                  spent, 
-                  limit, 
-                  percent / 100, 
+                  context,
+                  category,
+                  spent,
+                  limit,
+                  percent / 100,
                   color,
                 ),
               );
             }),
-            
+
             // Section: Needs Attention
             if (_needsAttention.isNotEmpty) ...[
               SizedBox(height: h * 0.02),
@@ -195,7 +205,9 @@ class _BudgetSuggestionsPageState extends State<BudgetSuggestionsPage> {
                 decoration: BoxDecoration(
                   color: AppColors.widget,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border(left: BorderSide(color: AppColors.orange, width: 4)),
+                  border: Border(
+                    left: BorderSide(color: AppColors.orange, width: 4),
+                  ),
                 ),
                 child: Column(
                   children: _needsAttention.asMap().entries.map((entry) {
@@ -205,10 +217,16 @@ class _BudgetSuggestionsPageState extends State<BudgetSuggestionsPage> {
                     final budget = (item['budget'] ?? 0).toDouble();
                     final spent = (item['spent'] ?? 0).toDouble();
                     final overspentBy = (item['overspentBy'] ?? 0).toDouble();
-                    
+
                     return Column(
                       children: [
-                        _buildAttentionItem(context, category, budget, spent, overspentBy),
+                        _buildAttentionItem(
+                          context,
+                          category,
+                          budget,
+                          spent,
+                          overspentBy,
+                        ),
                         if (index < _needsAttention.length - 1)
                           Divider(color: AppColors.grey.withOpacity(0.2)),
                       ],
@@ -237,20 +255,24 @@ class _BudgetSuggestionsPageState extends State<BudgetSuggestionsPage> {
                     final index = entry.key;
                     final item = entry.value;
                     final category = item['category'] ?? 'Unknown';
-                    final currentBudget = (item['currentBudget'] ?? 0).toDouble();
-                    final recommended = (item['recommendedBudget'] ?? item['recommended'] ?? 0).toDouble();
-                    final currentUsage = item['currentUsage']?.toString() ?? '0%';
+                    final currentBudget = (item['currentBudget'] ?? 0)
+                        .toDouble();
+                    final recommended =
+                        (item['recommendedBudget'] ?? item['recommended'] ?? 0)
+                            .toDouble();
+                    final currentUsage =
+                        item['currentUsage']?.toString() ?? '0%';
                     final adjustment = item['adjustment'] ?? '';
                     final isIncrease = recommended > currentBudget;
-                    
+
                     return Column(
                       children: [
                         _buildDetailedItem(
-                          context, 
-                          category, 
-                          currentBudget, 
-                          recommended, 
-                          currentUsage, 
+                          context,
+                          category,
+                          currentBudget,
+                          recommended,
+                          currentUsage,
                           adjustment,
                           isIncrease: isIncrease,
                         ),
@@ -262,7 +284,7 @@ class _BudgetSuggestionsPageState extends State<BudgetSuggestionsPage> {
                 ),
               ),
             ],
-            
+
             SizedBox(height: h * 0.04),
           ],
         ),
@@ -387,7 +409,11 @@ class _BudgetSuggestionsPageState extends State<BudgetSuggestionsPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.warning_amber_rounded, color: AppColors.orange, size: 20),
+              Icon(
+                Icons.warning_amber_rounded,
+                color: AppColors.orange,
+                size: 20,
+              ),
               SizedBox(width: 8),
               Text(
                 title,
@@ -425,9 +451,9 @@ class _BudgetSuggestionsPageState extends State<BudgetSuggestionsPage> {
     double currentBudget,
     double recommended,
     String currentUsage,
-    String adjustment,
-    {required bool isIncrease}
-  ) {
+    String adjustment, {
+    required bool isIncrease,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Column(
@@ -437,8 +463,10 @@ class _BudgetSuggestionsPageState extends State<BudgetSuggestionsPage> {
             children: [
               Icon(
                 isIncrease ? Icons.trending_up : Icons.trending_down,
-                color: isIncrease ? AppColors.main : AppColors.main, // Using main green for trend
-                size: 20
+                color: isIncrease
+                    ? AppColors.main
+                    : AppColors.main, // Using main green for trend
+                size: 20,
               ),
               SizedBox(width: 8),
               Text(
@@ -454,17 +482,33 @@ class _BudgetSuggestionsPageState extends State<BudgetSuggestionsPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Current Budget", style: AppTextStyles.caption.copyWith(color: AppColors.grey)),
+                  Text(
+                    "Current Budget",
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.grey,
+                    ),
+                  ),
                   SizedBox(height: 4),
-                  Text("\$${currentBudget.toInt()}", style: AppTextStyles.body1.copyWith(color: AppColors.white)),
+                  Text(
+                    "\$${currentBudget.toInt()}",
+                    style: AppTextStyles.body1.copyWith(color: AppColors.white),
+                  ),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Recommended", style: AppTextStyles.caption.copyWith(color: AppColors.grey)),
+                  Text(
+                    "Recommended",
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.grey,
+                    ),
+                  ),
                   SizedBox(height: 4),
-                  Text("\$${recommended.toInt()}", style: AppTextStyles.body1.copyWith(color: AppColors.main)),
+                  Text(
+                    "\$${recommended.toInt()}",
+                    style: AppTextStyles.body1.copyWith(color: AppColors.main),
+                  ),
                 ],
               ),
             ],
@@ -476,21 +520,34 @@ class _BudgetSuggestionsPageState extends State<BudgetSuggestionsPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Current Usage", style: AppTextStyles.caption.copyWith(color: AppColors.grey)),
+                  Text(
+                    "Current Usage",
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.grey,
+                    ),
+                  ),
                   SizedBox(height: 4),
-                  Text(currentUsage, style: AppTextStyles.body1.copyWith(color: isIncrease ? AppColors.white : AppColors.red)),
+                  Text(
+                    currentUsage,
+                    style: AppTextStyles.body1.copyWith(
+                      color: isIncrease ? AppColors.white : AppColors.red,
+                    ),
+                  ),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Adjustment", style: AppTextStyles.caption.copyWith(color: AppColors.grey)),
+                  Text(
+                    "Adjustment",
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.grey,
+                    ),
+                  ),
                   SizedBox(height: 4),
                   Text(
-                    adjustment, 
-                    style: AppTextStyles.body1.copyWith(
-                      color: AppColors.main
-                    )
+                    adjustment,
+                    style: AppTextStyles.body1.copyWith(color: AppColors.main),
                   ),
                 ],
               ),

@@ -6,7 +6,7 @@ import 'package:fintrack/core/services/n8n_service.dart';
 
 class MonthlyReportPage extends StatefulWidget {
   final String userId;
-  
+
   const MonthlyReportPage({super.key, required this.userId});
 
   @override
@@ -51,24 +51,35 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
   Future<void> _fetchData() async {
     try {
       final result = await _n8nService.fetchMonthlyReport(widget.userId);
-      
+
       setState(() {
         // Hỗ trợ cả snake_case và camelCase từ API
-        _totalSpending = _parseDouble(result['total_spending'] ?? result['totalSpending']);
-        _transactionCount = _parseInt(result['transaction_count'] ?? result['transactionCount']);
-        
+        _totalSpending = _parseDouble(
+          result['total_spending'] ?? result['totalSpending'],
+        );
+        _transactionCount = _parseInt(
+          result['transaction_count'] ?? result['transactionCount'],
+        );
+
         // Parse topCategories - hỗ trợ cả 2 format key
-        final topCategoriesData = result['top_categories'] ?? result['topCategories'];
+        final topCategoriesData =
+            result['top_categories'] ?? result['topCategories'];
         if (topCategoriesData is List) {
           // Chuyển đổi format: sum_amount -> amount, categoryName -> name
           _topCategories = topCategoriesData.map<Map<String, dynamic>>((item) {
             return {
               'name': item['categoryName'] ?? item['name'] ?? 'Unknown',
-              'amount': _parseDouble(item['sum_amount'] ?? item['amount'] ?? item['total']),
-              'icon': item['first_categoryIcon'] ?? item['categoryIcon'] ?? item['icon'] ?? '',
+              'amount': _parseDouble(
+                item['sum_amount'] ?? item['amount'] ?? item['total'],
+              ),
+              'icon':
+                  item['first_categoryIcon'] ??
+                  item['categoryIcon'] ??
+                  item['icon'] ??
+                  '',
             };
           }).toList();
-          
+
           // Tính max amount để làm 100% cho progress bar
           if (_topCategories.isNotEmpty) {
             _maxCategoryAmount = _topCategories
@@ -84,9 +95,10 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
                 .reduce((a, b) => a > b ? a : b);
           }
         }
-        
+
         // Parse recurringServices - hỗ trợ cả 2 format
-        final recurringData = result['recurring_services'] ?? result['recurringServices'];
+        final recurringData =
+            result['recurring_services'] ?? result['recurringServices'];
         if (recurringData is List) {
           _recurringServices = recurringData.map<Map<String, dynamic>>((item) {
             return {
@@ -98,13 +110,14 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
         } else if (recurringData is String) {
           _recurringServices = _parseTextToRecurring(recurringData);
         }
-        
+
         // AI Suggestions - hỗ trợ nhiều format key
-        _aiSuggestions = result['ai_suggestions']?.toString() ?? 
+        _aiSuggestions =
+            result['ai_suggestions']?.toString() ??
             result['suggestions']?.toString() ??
             result['ai_analysis']?.toString() ??
             'No suggestions available for this month.';
-        
+
         _isLoading = false;
       });
     } catch (e) {
@@ -119,7 +132,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
   List<Map<String, dynamic>> _parseTextToCategories(String text) {
     final List<Map<String, dynamic>> categories = [];
     final lines = text.split('\n');
-    
+
     for (var line in lines) {
       line = line.trim();
       if (line.startsWith('- ')) {
@@ -127,7 +140,10 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
         final parts = line.split(':');
         if (parts.length >= 2) {
           final name = parts[0].trim();
-          final amountStr = parts[1].trim().replaceAll('\$', '').replaceAll(',', '');
+          final amountStr = parts[1]
+              .trim()
+              .replaceAll('\$', '')
+              .replaceAll(',', '');
           final amount = double.tryParse(amountStr) ?? 0;
           categories.add({'name': name, 'amount': amount});
         }
@@ -187,7 +203,10 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
           children: [
             Text(
               "Monthly Report",
-              style: AppTextStyles.heading1.copyWith(color: AppColors.white, fontSize: 24),
+              style: AppTextStyles.heading1.copyWith(
+                color: AppColors.white,
+                fontSize: 24,
+              ),
             ),
             Container(
               height: 4,
@@ -197,7 +216,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
                 color: AppColors.main,
                 borderRadius: BorderRadius.circular(2),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -288,30 +307,30 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
               ),
             ),
             SizedBox(height: h * 0.02),
-            
+
             // Stats Cards
             Row(
               children: [
                 Expanded(
                   child: _buildStatCard(
-                    context, 
-                    "Total Spending", 
-                    "\$${_totalSpending.toStringAsFixed(2)}", 
+                    context,
+                    "Total Spending",
+                    "\$${_totalSpending.toStringAsFixed(2)}",
                     Icons.account_balance_wallet,
                   ),
                 ),
                 SizedBox(width: w * 0.04),
                 Expanded(
                   child: _buildStatCard(
-                    context, 
-                    "Transactions", 
-                    "$_transactionCount", 
+                    context,
+                    "Transactions",
+                    "$_transactionCount",
                     Icons.receipt_long,
                   ),
                 ),
               ],
             ),
-            
+
             // Section: Top 5 Spending Categories
             if (_topCategories.isNotEmpty) ...[
               SizedBox(height: h * 0.04),
@@ -330,21 +349,37 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
                   children: _topCategories.asMap().entries.map((entry) {
                     final index = entry.key;
                     final item = entry.value;
-                    final name = item['name'] ?? item['categoryName'] ?? 'Unknown';
-                    final amount = _parseDouble(item['amount'] ?? item['total']);
+                    final name =
+                        item['name'] ?? item['categoryName'] ?? 'Unknown';
+                    final amount = _parseDouble(
+                      item['amount'] ?? item['total'],
+                    );
                     // Ưu tiên icon từ API, nếu không có thì tự tạo từ tên category
-                    String iconPath = item['icon'] ?? item['first_categoryIcon'] ?? item['categoryIcon'] ?? '';
+                    String iconPath =
+                        item['icon'] ??
+                        item['first_categoryIcon'] ??
+                        item['categoryIcon'] ??
+                        '';
                     if (iconPath.isEmpty || !iconPath.startsWith('assets/')) {
                       iconPath = _getIconPath(name);
                     }
                     final color = _getCategoryColor(name);
-                    
+
                     // Tính progress dựa trên max amount (item đầu tiên = 100%)
-                    final progress = _maxCategoryAmount > 0 ? amount / _maxCategoryAmount : 0.0;
-                    
+                    final progress = _maxCategoryAmount > 0
+                        ? amount / _maxCategoryAmount
+                        : 0.0;
+
                     return Column(
                       children: [
-                        _buildCategoryItem(context, name, amount, color, iconPath, progress),
+                        _buildCategoryItem(
+                          context,
+                          name,
+                          amount,
+                          color,
+                          iconPath,
+                          progress,
+                        ),
                         if (index < _topCategories.length - 1)
                           SizedBox(height: 16),
                       ],
@@ -353,7 +388,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
                 ),
               ),
             ],
-            
+
             // Section: Recurring Services
             if (_recurringServices.isNotEmpty) ...[
               SizedBox(height: h * 0.04),
@@ -381,11 +416,19 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
                       final parts = iconPath.split('/');
                       categoryFromIcon = parts.last.replaceAll('.png', '');
                     }
-                    final color = _getCategoryColor(categoryFromIcon.isNotEmpty ? categoryFromIcon : name);
-                    
+                    final color = _getCategoryColor(
+                      categoryFromIcon.isNotEmpty ? categoryFromIcon : name,
+                    );
+
                     return Column(
                       children: [
-                        _buildRecurringItem(context, name, amount, color, iconPath),
+                        _buildRecurringItem(
+                          context,
+                          name,
+                          amount,
+                          color,
+                          iconPath,
+                        ),
                         if (index < _recurringServices.length - 1)
                           Divider(color: AppColors.grey.withOpacity(0.2)),
                       ],
@@ -394,7 +437,7 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
                 ),
               ),
             ],
-            
+
             // Section: AI Suggestions
             SizedBox(height: h * 0.04),
             Text(
@@ -425,7 +468,12 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon) {
+  Widget _buildStatCard(
+    BuildContext context,
+    String title,
+    String value,
+    IconData icon,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -439,11 +487,20 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
             children: [
               Icon(icon, color: AppColors.grey, size: 16),
               const SizedBox(width: 8),
-              Text(title, style: AppTextStyles.caption.copyWith(color: AppColors.grey)),
+              Text(
+                title,
+                style: AppTextStyles.caption.copyWith(color: AppColors.grey),
+              ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(value, style: AppTextStyles.heading1.copyWith(color: AppColors.white, fontSize: 24)),
+          Text(
+            value,
+            style: AppTextStyles.heading1.copyWith(
+              color: AppColors.white,
+              fontSize: 24,
+            ),
+          ),
         ],
       ),
     );
@@ -475,8 +532,14 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(title, style: AppTextStyles.body1.copyWith(color: AppColors.white)),
-                  Text("\$${amount.toStringAsFixed(2)}", style: AppTextStyles.body1.copyWith(color: AppColors.white)),
+                  Text(
+                    title,
+                    style: AppTextStyles.body1.copyWith(color: AppColors.white),
+                  ),
+                  Text(
+                    "\$${amount.toStringAsFixed(2)}",
+                    style: AppTextStyles.body1.copyWith(color: AppColors.white),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -515,9 +578,15 @@ class _MonthlyReportPageState extends State<MonthlyReportPage> {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(title, style: AppTextStyles.body1.copyWith(color: AppColors.white)),
+            child: Text(
+              title,
+              style: AppTextStyles.body1.copyWith(color: AppColors.white),
+            ),
           ),
-          Text("\$${amount.toStringAsFixed(2)}", style: AppTextStyles.body1.copyWith(color: AppColors.white)),
+          Text(
+            "\$${amount.toStringAsFixed(2)}",
+            style: AppTextStyles.body1.copyWith(color: AppColors.white),
+          ),
         ],
       ),
     );
