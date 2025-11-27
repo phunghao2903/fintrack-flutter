@@ -1,3 +1,4 @@
+import 'package:fintrack/core/utils/currency_formatter.dart';
 import 'package:fintrack/features/transaction_%20history/domain/entities/transaction_entity.dart';
 
 /// ExpenseEntity now mirrors a summarized category item.
@@ -23,15 +24,15 @@ class ExpenseEntity {
   });
 
   String get formattedAmount => isIncome
-      ? ' ${amount.toStringAsFixed(2)}'
-      : ' ${amount.toStringAsFixed(2)}';
+      ? CurrencyFormatter.formatVNDWithSymbol(amount)
+      : CurrencyFormatter.formatVNDWithSymbol(amount);
 
   /// Reuse helpers from TransactionEntity where appropriate
   String get formattedTime => TransactionEntity(
     categoryId: categoryId,
     categoryName: categoryName,
     moneySourceName: '',
-    note: '',
+    merchant: '',
     amount: amount,
     dateTime: DateTime.now(),
     isIncome: isIncome,

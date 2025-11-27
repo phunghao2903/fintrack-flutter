@@ -91,8 +91,8 @@ Widget _buildTransactionItem(
         children: [
           // Icon with dynamic color
           Container(
-            width: 48,
-            height: 48,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
               // color: categoryColor.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
@@ -124,7 +124,7 @@ Widget _buildTransactionItem(
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  transaction.note,
+                  transaction.merchant,
                   style: TextStyle(
                     color: AppColors.grey,
                     fontSize: AppTextStyles.caption.fontSize,

@@ -8,7 +8,7 @@ class TransactionModel extends TransactionEntity {
     required super.categoryName,
     super.categoryIcon,
     required super.moneySourceName,
-    required super.note,
+    required super.merchant,
     required super.amount,
     required super.dateTime,
     required super.isIncome,
@@ -24,7 +24,7 @@ class TransactionModel extends TransactionEntity {
       categoryName: data['categoryName'] as String? ?? '',
       categoryIcon: data['categoryIcon'] as String?, // Có thể null
       moneySourceName: data['moneySourceName'] as String? ?? '',
-      note: data['note'] as String? ?? '',
+      merchant: data['merchant'] as String? ?? '',
       amount: (data['amount'] as num?)?.toDouble() ?? 0.0,
       dateTime: (data['dateTime'] as Timestamp?)?.toDate() ?? DateTime.now(),
       isIncome: data['isIncome'] as bool? ?? false,
@@ -44,7 +44,7 @@ class TransactionModel extends TransactionEntity {
       categoryName: data['categoryName'] as String? ?? '',
       categoryIcon: categoryIcon, // Icon từ categories collection
       moneySourceName: data['moneySourceName'] as String? ?? '',
-      note: data['note'] as String? ?? '',
+      merchant: data['merchant'] as String? ?? '',
       amount: (data['amount'] as num?)?.toDouble() ?? 0.0,
       dateTime: (data['dateTime'] as Timestamp?)?.toDate() ?? DateTime.now(),
       isIncome: data['isIncome'] as bool? ?? false,
@@ -54,7 +54,7 @@ class TransactionModel extends TransactionEntity {
   Map<String, dynamic> toJson() => {
     'categoryName': categoryName,
     'moneySourceName': moneySourceName,
-    'note': note,
+    'merchant': merchant,
     'amount': amount,
     'dateTime': Timestamp.fromDate(dateTime),
     'isIncome': isIncome,
