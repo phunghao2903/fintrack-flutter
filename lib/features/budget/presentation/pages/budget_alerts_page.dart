@@ -426,7 +426,9 @@ class _BudgetAlertsPageState extends State<BudgetAlertsPage> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                isExceeded ? "Overspent by ${CurrencyFormatter.formatVNDWithSymbol(diff)}" : "Remaining: ${CurrencyFormatter.formatVNDWithSymbol(diff)}",
+                isExceeded
+                    ? "Overspent by ${CurrencyFormatter.formatVNDWithSymbol(diff)}"
+                    : "Remaining: ${CurrencyFormatter.formatVNDWithSymbol(diff)}",
                 style: AppTextStyles.body2.copyWith(
                   color: isExceeded ? AppColors.red : AppColors.orange,
                 ),

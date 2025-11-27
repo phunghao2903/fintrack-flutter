@@ -16,10 +16,7 @@ class N8nService {
     if (value == null) return value;
     if (value is String) {
       // Loại bỏ ký hiệu $ và các ký tự không phải số
-      String cleaned = value
-          .replaceAll('\$', '')
-          .replaceAll(',', '')
-          .trim();
+      String cleaned = value.replaceAll('\$', '').replaceAll(',', '').trim();
       // Nếu là số hợp lệ, trả về số
       final parsed = double.tryParse(cleaned);
       if (parsed != null) return parsed;
