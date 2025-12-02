@@ -15,6 +15,7 @@ import 'package:fintrack/features/add_transaction/domain/repositories/category_r
 import 'package:fintrack/features/add_transaction/domain/usecases/change_money_source_balance_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/sync_is_income_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/upload_image_usecase.dart';
+import 'package:fintrack/features/add_transaction/domain/usecases/upload_text_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/get_money_source_by_id_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/update_budgets_with_transaction_usecase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,13 +29,14 @@ import 'domain/usecases/delete_transaction_usecase.dart';
 import 'domain/usecases/update_transaction_usecase.dart';
 import 'presentation/bloc/add_tx_bloc.dart';
 import 'presentation/bloc/image_entry_bloc.dart';
+import 'presentation/bloc/text_entry_bloc.dart';
 
 final sl = GetIt.instance;
 
 Future<void> initAddTransaction() async {
   const webhookUrl =
-      'https://n8n-vietnam.id.vn/webhook/91a3525b-d6cb-4f2d-9e9a-d89cd871bcd3';
-
+      // 'https://n8n-vietnam.id.vn/webhook/91a3525b-d6cb-4f2d-9e9a-d89cd871bcd3';
+      'https://n8n-vietnam.id.vn/webhook-test/588768f1-8a5d-4ea2-8f85-94ca49b81f8a';
   sl.registerLazySingleton<Dio>(() => Dio());
 
   // datasources
@@ -108,6 +110,7 @@ Future<void> initAddTransaction() async {
     () => UpdateBudgetsWithTransactionUsecase(sl()),
   );
   sl.registerLazySingleton<UploadImageUsecase>(() => UploadImageUsecase(sl()));
+  sl.registerLazySingleton<UploadTextUsecase>(() => UploadTextUsecase(sl()));
   sl.registerLazySingleton<SyncIsIncomeUseCase>(
     () => SyncIsIncomeUseCase(sl()),
   );
@@ -132,6 +135,16 @@ Future<void> initAddTransaction() async {
       syncIsIncomeUseCase: sl(),
       auth: FirebaseAuth.instance,
       updateBudgetsWithTransactionUsecase: sl(),
+    ),
+  );
+  sl.registerFactory<TextEntryBloc>(
+    () => TextEntryBloc(
+      uploadTextUsecase: sl(),
+      getMoneySourcesUsecase: sl(),
+      changeMoneySourceBalanceUsecase: sl(),
+      updateBudgetsWithTransactionUsecase: sl(),
+      syncIsIncomeUseCase: sl(),
+      auth: FirebaseAuth.instance,
     ),
   );
 
