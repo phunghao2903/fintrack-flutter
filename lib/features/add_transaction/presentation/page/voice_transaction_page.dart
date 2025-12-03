@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:fintrack/core/theme/app_colors.dart';
@@ -10,6 +11,9 @@ import 'package:fintrack/features/add_transaction/presentation/bloc/voice_entry_
 import 'package:fintrack/features/add_transaction/presentation/page/transaction_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:record/record.dart';
+import 'package:path_provider/path_provider.dart';
 
 class VoiceTransactionPage extends StatefulWidget {
   const VoiceTransactionPage({super.key});
@@ -23,44 +27,169 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
   final List<double> _waveformHeights =
       List<double>.filled(36, 6); // placeholder bars
 
-  Timer? _waveformTimer;
+  final AudioRecorder _recorder = AudioRecorder();
+  StreamSubscription<Amplitude>? _amplitudeSubscription;
+
   bool _isRecording = false;
+  bool _hasVoiceInput = false;
   String _languageCode = 'en-US';
   String _capturedTranscript = '';
+  String? _audioFilePath;
+  String? _recordingFilePath;
+  String? _lastErrorMessage;
+
+  static const double _silenceThresholdDb = -45;
 
   @override
   void dispose() {
-    _waveformTimer?.cancel();
+    _amplitudeSubscription?.cancel();
+    _recorder.dispose();
     super.dispose();
   }
 
-  void _startRecording() {
-    setState(() {
-      _isRecording = true;
-      _capturedTranscript = '';
-    });
-    _resetWaveform();
-    _waveformTimer?.cancel();
-    _waveformTimer = Timer.periodic(
-      const Duration(milliseconds: 140),
-      _updateWaveform,
-    );
+  Future<bool> _ensureMicrophonePermission() async {
+    final hasPermission = await _recorder.hasPermission();
+    if (hasPermission) return true;
+
+    final status = await Permission.microphone.request();
+    return status.isGranted;
   }
 
-  void _stopRecording(BuildContext blocContext) {
-    _waveformTimer?.cancel();
-    _resetWaveform();
+  Future<void> _startRecording() async {
+    if (!await _ensureMicrophonePermission()) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Microphone permission is required to record audio.'),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final directory = await getTemporaryDirectory();
+      final filePath =
+          '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
+      await _recorder.start(
+        const RecordConfig(
+          encoder: AudioEncoder.aacLc,
+          bitRate: 128000,
+          sampleRate: 44100,
+        ),
+        path: filePath,
+      );
+      _listenToAmplitude();
+      _flattenWaveform();
+      setState(() {
+        _isRecording = true;
+        _capturedTranscript = '';
+        _audioFilePath = null;
+        _hasVoiceInput = false;
+        _recordingFilePath = filePath;
+        _lastErrorMessage = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to start recording: $e')),
+      );
+    }
+  }
+
+  Future<void> _stopRecording(BuildContext blocContext) async {
+    _amplitudeSubscription?.cancel();
+    _hasVoiceInput = false;
+
+    try {
+      final stopPath = await _recorder.stop();
+      final resolvedPath = stopPath?.isNotEmpty == true
+          ? stopPath
+          : _recordingFilePath;
+      _flattenWaveform();
+      if (!mounted) return;
+      setState(() {
+        _isRecording = false;
+        _audioFilePath = resolvedPath;
+      });
+
+      if (resolvedPath == null ||
+          resolvedPath.isEmpty ||
+          !File(resolvedPath).existsSync()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No audio captured. Please record again.'),
+          ),
+        );
+        return;
+      }
+
+      _captureTranscriptFromVoice();
+      _submitTranscript(blocContext);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isRecording = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to stop recording: $e')),
+      );
+    }
+  }
+
+  void _listenToAmplitude() {
+    _amplitudeSubscription?.cancel();
+    _amplitudeSubscription = _recorder
+        .onAmplitudeChanged(const Duration(milliseconds: 140))
+        .listen((amp) {
+      if (!mounted) return;
+      final hasVoice = amp.current > _silenceThresholdDb;
+      if (hasVoice != _hasVoiceInput) {
+        setState(() {
+          _hasVoiceInput = hasVoice;
+        });
+        if (!hasVoice) {
+          _flattenWaveform();
+        }
+      }
+      if (hasVoice) {
+        _updateWaveformFromAmplitude(amp.current);
+      }
+    });
+  }
+
+  void _flattenWaveform() {
+    if (!mounted) return;
+    setState(() {
+      for (var i = 0; i < _waveformHeights.length; i++) {
+        _waveformHeights[i] = 6;
+      }
+    });
+  }
+
+  void _resetVisualState() {
+    if (!mounted) return;
+    _flattenWaveform();
     setState(() {
       _isRecording = false;
+      _hasVoiceInput = false;
+      _audioFilePath = null;
+      _recordingFilePath = null;
+      _lastErrorMessage = null;
     });
-    _captureTranscriptFromVoice();
-    _submitTranscript(blocContext);
   }
 
-  void _resetWaveform() {
-    for (var i = 0; i < _waveformHeights.length; i++) {
-      _waveformHeights[i] = 6;
-    }
+  void _updateWaveformFromAmplitude(double levelDb) {
+    if (!_isRecording || !_hasVoiceInput || !mounted) return;
+    final normalized = ((levelDb + 60) / 60).clamp(0.0, 1.0);
+
+    setState(() {
+      for (var i = 0; i < _waveformHeights.length; i++) {
+        final base = 12 + (_random.nextDouble() * 26 * normalized);
+        final dynamicPulse = _random.nextDouble() * 64 * normalized;
+        _waveformHeights[i] = 8 + base + dynamicPulse;
+      }
+    });
   }
 
   void _captureTranscriptFromVoice() {
@@ -68,28 +197,30 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
     _capturedTranscript = 'Voice input captured in $_languageCode';
   }
 
-  void _updateWaveform(Timer _) {
-    if (!_isRecording) return;
-    setState(() {
-      for (var i = 0; i < _waveformHeights.length; i++) {
-        final base = _random.nextDouble() * 32;
-        final dynamicPulse = _random.nextDouble() * 56;
-        _waveformHeights[i] = 10 + base + dynamicPulse;
-      }
-    });
-  }
-
-  void _toggleRecording(BuildContext blocContext, bool isUploading) {
+  Future<void> _toggleRecording(
+    BuildContext blocContext,
+    bool isUploading,
+  ) async {
     if (isUploading) return;
     if (_isRecording) {
-      _stopRecording(blocContext);
+      await _stopRecording(blocContext);
     } else {
-      _startRecording();
+      blocContext.read<VoiceEntryBloc>().add(VoiceEntryReset());
+      await _startRecording();
     }
   }
 
   void _submitTranscript(BuildContext blocContext) {
     final transcript = _capturedTranscript.trim();
+    final audioPath = _audioFilePath;
+    if (audioPath == null || audioPath.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No audio captured. Please record again.'),
+        ),
+      );
+      return;
+    }
     if (transcript.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -102,8 +233,12 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
           UploadVoiceRequested(
             transcript: transcript,
             languageCode: _languageCode,
+            audioPath: audioPath,
           ),
         );
+    setState(() {
+      _lastErrorMessage = null;
+    });
   }
 
   @override
@@ -112,21 +247,29 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
     final double w = SizeUtils.width(context);
 
     return BlocListener<VoiceEntryBloc, VoiceEntryState>(
-      listenWhen: (previous, current) =>
-          current is VoiceEntrySuccess || current is VoiceEntryFailure,
       listener: (context, state) {
         if (state is VoiceEntrySuccess) {
+          _resetVisualState();
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) =>
                   TransactionDetailPage(transaction: state.transaction),
             ),
-          );
+          ).then((_) {
+            if (mounted) {
+              context.read<VoiceEntryBloc>().add(VoiceEntryReset());
+            }
+          });
         } else if (state is VoiceEntryFailure) {
+          _resetVisualState();
+          setState(() {
+            _lastErrorMessage = state.message;
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
           );
+          context.read<VoiceEntryBloc>().add(VoiceEntryReset());
         }
       },
       child: Scaffold(
@@ -214,9 +357,10 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
     final double waveformHeight = h * 0.32;
 
     return BlocBuilder<VoiceEntryBloc, VoiceEntryState>(
-      buildWhen: (previous, current) => current is VoiceEntryUploading,
       builder: (context, state) {
         final bool isUploading = state is VoiceEntryUploading;
+        final bool showError =
+            _lastErrorMessage != null && !isUploading;
         return Container(
           height: waveformHeight,
           width: w,
@@ -326,19 +470,31 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
                         ),
                     ],
                   ),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 16),
                   Expanded(
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 240),
-                        child: _isRecording
-                            ? _ActiveWaveform(
-                                heights: _waveformHeights,
-                              )
-                            : const _IdleWaveform(),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(28),
+                      child: Center(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 240),
+                          child: _isRecording && _hasVoiceInput && !isUploading
+                              ? _ActiveWaveform(
+                                  heights: _waveformHeights,
+                                )
+                              : const _IdleWaveform(),
+                        ),
                       ),
                     ),
                   ),
+                  if (showError) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      _lastErrorMessage ?? '',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.grey,
+                      ),
+                    ),
+                  ],
                 ],
               ),
               if (isUploading)
@@ -371,8 +527,11 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
     return BlocBuilder<VoiceEntryBloc, VoiceEntryState>(
       builder: (context, state) {
         final bool isUploading = state is VoiceEntryUploading;
-        final String label =
-            _isRecording ? 'Tap to stop' : 'Tap to start recording';
+        final String label = isUploading
+            ? 'Uploading your audio...'
+            : _isRecording
+                ? 'Tap to stop'
+                : 'Tap to start recording';
         final IconData icon = _isRecording ? Icons.stop : Icons.mic;
 
         return SafeArea(
@@ -391,40 +550,31 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
               ),
               const SizedBox(height: 10),
               GestureDetector(
-                onTap: () => _toggleRecording(context, isUploading),
+                onTap: isUploading ? null : () => _toggleRecording(context, isUploading),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   height: 84,
                   width: 84,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.main,
+                    color:
+                        isUploading ? AppColors.main.withOpacity(0.65) : AppColors.main,
                     boxShadow: [
-                      BoxShadow(
-                        color: AppColors.main
-                            .withOpacity(_isRecording ? 0.45 : 0.28),
-                        blurRadius: _isRecording ? 30 : 16,
-                        spreadRadius: _isRecording ? 6 : 2,
-                      ),
+                      if (!isUploading)
+                        BoxShadow(
+                          color:
+                              AppColors.main.withOpacity(_isRecording ? 0.45 : 0.28),
+                          blurRadius: _isRecording ? 30 : 16,
+                          spreadRadius: _isRecording ? 6 : 2,
+                        ),
                     ],
                   ),
                   child: Center(
-                    child: isUploading
-                        ? const SizedBox(
-                            height: 28,
-                            width: 28,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                AppColors.background,
-                              ),
-                            ),
-                          )
-                        : Icon(
-                            icon,
-                            color: AppColors.background,
-                            size: 34,
-                          ),
+                    child: Icon(
+                      icon,
+                      color: AppColors.background,
+                      size: 34,
+                    ),
                   ),
                 ),
               ),
@@ -545,20 +695,31 @@ class _IdleWaveform extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        32,
-        (index) => Container(
-          margin: const EdgeInsets.symmetric(horizontal: 3),
-          width: 8,
-          height: 3,
-          decoration: BoxDecoration(
-            color: AppColors.main.withOpacity(0.22),
-            borderRadius: BorderRadius.circular(2),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const double barWidth = 6;
+        const double horizontalMargin = 3;
+        final double totalBarWidth = barWidth + (horizontalMargin * 2);
+        final int computedBars =
+            (constraints.maxWidth / totalBarWidth).floor();
+        final int barCount = computedBars > 0 ? computedBars.clamp(1, 48) : 1;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            barCount,
+            (index) => Container(
+              margin: const EdgeInsets.symmetric(horizontal: horizontalMargin),
+              width: barWidth,
+              height: 3,
+              decoration: BoxDecoration(
+                color: AppColors.main.withOpacity(0.22),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -570,25 +731,40 @@ class _ActiveWaveform extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 140,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ...heights.map(
-            (value) => AnimatedContainer(
-              duration: const Duration(milliseconds: 120),
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              width: 6,
-              height: value.clamp(12, 120),
-              decoration: BoxDecoration(
-                color: AppColors.main,
-                borderRadius: BorderRadius.circular(8),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const double barWidth = 6;
+        const double horizontalMargin = 3;
+        final double totalBarWidth = barWidth + (horizontalMargin * 2);
+        final int computedBars =
+            (constraints.maxWidth / totalBarWidth).floor();
+        final int barCount = computedBars > 0
+            ? computedBars.clamp(1, heights.length)
+            : 1;
+        final visibleHeights = heights.take(barCount).toList();
+
+        return SizedBox(
+          height: 140,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ...visibleHeights.map(
+                (value) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 120),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: horizontalMargin),
+                  width: barWidth,
+                  height: value.clamp(12, 120),
+                  decoration: BoxDecoration(
+                    color: AppColors.main,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

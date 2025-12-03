@@ -26,6 +26,7 @@ class VoiceEntryBloc extends Bloc<VoiceEntryEvent, VoiceEntryState> {
     required this.auth,
   }) : super(VoiceEntryInitial()) {
     on<UploadVoiceRequested>(_onUploadVoiceRequested);
+    on<VoiceEntryReset>(_onReset);
   }
 
   Future<void> _onUploadVoiceRequested(
@@ -43,10 +44,11 @@ class VoiceEntryBloc extends Bloc<VoiceEntryEvent, VoiceEntryState> {
       final moneySources = await getMoneySourcesUsecase();
 
       final result = await uploadVoiceUsecase(
-        voiceText: event.transcript,
+        transcript: event.transcript,
         userId: userId,
         moneySources: moneySources,
         languageCode: event.languageCode,
+        audioPath: event.audioPath,
       );
 
       await result.fold<Future<void>>(
@@ -65,5 +67,9 @@ class VoiceEntryBloc extends Bloc<VoiceEntryEvent, VoiceEntryState> {
     } catch (e) {
       emit(VoiceEntryFailure(e.toString()));
     }
+  }
+
+  void _onReset(VoiceEntryReset event, Emitter<VoiceEntryState> emit) {
+    emit(VoiceEntryInitial());
   }
 }

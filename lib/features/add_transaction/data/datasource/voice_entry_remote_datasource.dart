@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
@@ -6,13 +7,13 @@ import 'package:fintrack/features/add_transaction/data/model/transaction_model.d
 import 'package:fintrack/features/add_transaction/domain/entities/transaction_entity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart';
 
 abstract class VoiceEntryRemoteDataSource {
   Future<TransactionModel> uploadVoice({
-    required String voiceText,
+    required File audioFile,
     required String userId,
     required List<Map<String, String>> moneySources,
-    String? languageCode,
   });
 
   Future<void> syncIsIncomeIfNeeded(TransactionEntity tx);
@@ -33,18 +34,19 @@ class VoiceEntryRemoteDataSourceImpl implements VoiceEntryRemoteDataSource {
 
   @override
   Future<TransactionModel> uploadVoice({
-    required String voiceText,
+    required File audioFile,
     required String userId,
     required List<Map<String, String>> moneySources,
-    String? languageCode,
   }) async {
     try {
       final formData = FormData.fromMap({
-        'voiceText': voiceText,
+        'audio': await MultipartFile.fromFile(
+          audioFile.path,
+          filename: basename(audioFile.path),
+        ),
         'userId': userId,
         'moneySources': jsonEncode(moneySources),
         'mode': 'voice',
-        if (languageCode != null) 'language': languageCode,
       });
 
       final response = await dio.post(

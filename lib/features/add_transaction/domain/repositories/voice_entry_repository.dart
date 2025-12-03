@@ -5,9 +5,10 @@ import 'package:fintrack/features/add_transaction/domain/entities/transaction_en
 
 abstract class VoiceEntryRepository {
   Future<Either<Failure, TransactionEntity>> uploadVoice(
-    String voiceText,
+    String transcript,
     String userId,
     List<MoneySourceEntity> moneySources, {
+    required String audioPath,
     String? languageCode,
   });
 

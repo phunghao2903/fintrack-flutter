@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:fintrack/core/error/failure.dart';
 import 'package:fintrack/features/add_transaction/data/datasource/voice_entry_remote_datasource.dart';
@@ -13,20 +15,25 @@ class VoiceEntryRepositoryImpl implements VoiceEntryRepository {
 
   @override
   Future<Either<Failure, TransactionEntity>> uploadVoice(
-    String voiceText,
+    String transcript,
     String userId,
     List<MoneySourceEntity> moneySources, {
+    required String audioPath,
     String? languageCode,
   }) async {
+    final audioFile = File(audioPath);
+    if (!audioFile.existsSync()) {
+      return Left(Failure('Audio file not found at $audioPath'));
+    }
+
     final serializedSources = moneySources
         .map((e) => {'id': e.id, 'name': e.name})
         .toList();
     try {
       final TransactionModel model = await remoteDataSource.uploadVoice(
-        voiceText: voiceText,
+        audioFile: audioFile,
         userId: userId,
         moneySources: serializedSources,
-        languageCode: languageCode,
       );
       return Right(model.toEntity());
     } catch (e) {

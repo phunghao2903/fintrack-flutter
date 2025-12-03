@@ -10,16 +10,18 @@ class UploadVoiceUsecase {
   UploadVoiceUsecase(this.repository);
 
   Future<Either<Failure, TransactionEntity>> call({
-    required String voiceText,
+    required String transcript,
     required String userId,
     required List<MoneySourceEntity> moneySources,
+    required String audioPath,
     String? languageCode,
   }) {
     return repository.uploadVoice(
-      voiceText,
+      transcript,
       userId,
       moneySources,
       languageCode: languageCode,
+      audioPath: audioPath,
     );
   }
 }
