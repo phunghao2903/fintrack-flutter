@@ -9,15 +9,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 
-abstract class ImageEntryRemoteDataSource {
-  Future<TransactionModel> uploadImage({
-    required File image,
-    required String userId,
-    required List<Map<String, String>> moneySources,
-  });
-
-  Future<TransactionModel> uploadText({
-    required String text,
+abstract class VoiceEntryRemoteDataSource {
+  Future<TransactionModel> uploadVoice({
+    required File audioFile,
     required String userId,
     required List<Map<String, String>> moneySources,
   });
@@ -25,13 +19,13 @@ abstract class ImageEntryRemoteDataSource {
   Future<void> syncIsIncomeIfNeeded(TransactionEntity tx);
 }
 
-class ImageEntryRemoteDataSourceImpl implements ImageEntryRemoteDataSource {
+class VoiceEntryRemoteDataSourceImpl implements VoiceEntryRemoteDataSource {
   final Dio dio;
   final String webhookUrl;
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
 
-  ImageEntryRemoteDataSourceImpl({
+  VoiceEntryRemoteDataSourceImpl({
     required this.dio,
     required this.webhookUrl,
     required this.firestore,
@@ -39,67 +33,20 @@ class ImageEntryRemoteDataSourceImpl implements ImageEntryRemoteDataSource {
   });
 
   @override
-  Future<TransactionModel> uploadImage({
-    required File image,
+  Future<TransactionModel> uploadVoice({
+    required File audioFile,
     required String userId,
     required List<Map<String, String>> moneySources,
   }) async {
     try {
       final formData = FormData.fromMap({
-        'image': await MultipartFile.fromFile(
-          image.path,
-          filename: basename(image.path),
+        'audio': await MultipartFile.fromFile(
+          audioFile.path,
+          filename: basename(audioFile.path),
         ),
         'userId': userId,
         'moneySources': jsonEncode(moneySources),
-        'mode': 'image',
-      });
-
-      final response = await dio.post(
-        webhookUrl,
-        data: formData,
-        options: Options(validateStatus: (status) => true),
-      );
-
-      if (response.statusCode != null &&
-          response.statusCode! >= 200 &&
-          response.statusCode! < 300) {
-        final data = response.data;
-        if (data is Map<String, dynamic>) {
-          return TransactionModel.fromN8nJson(data);
-        } else if (data is List && data.isNotEmpty) {
-          final first = data.first;
-          if (first is Map<String, dynamic>) {
-            return TransactionModel.fromN8nJson(
-              Map<String, dynamic>.from(first),
-            );
-          }
-        }
-        throw Exception('Unexpected response format: ${data.runtimeType}');
-      }
-
-      throw Exception(
-        'Upload failed (${response.statusCode ?? 'no status'}): ${response.data}',
-      );
-    } on DioException catch (e) {
-      final status = e.response?.statusCode ?? -1;
-      final data = e.response?.data ?? e.message ?? 'Unknown Dio error';
-      throw Exception('Upload failed ($status): $data');
-    }
-  }
-
-  @override
-  Future<TransactionModel> uploadText({
-    required String text,
-    required String userId,
-    required List<Map<String, String>> moneySources,
-  }) async {
-    try {
-      final formData = FormData.fromMap({
-        'text': text,
-        'userId': userId,
-        'moneySources': jsonEncode(moneySources),
-        'mode': 'text',
+        'mode': 'voice',
       });
 
       final response = await dio.post(
@@ -177,7 +124,6 @@ class ImageEntryRemoteDataSourceImpl implements ImageEntryRemoteDataSource {
     if (value is DateTime) return value;
     if (value is Timestamp) return value.toDate();
     if (value is String) {
-      // Example: "October 11, 2025 at 07:05:00 PM UTC+7"
       final withoutTz = value
           .split('UTC')
           .first

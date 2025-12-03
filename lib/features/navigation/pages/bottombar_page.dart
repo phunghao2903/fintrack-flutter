@@ -2,13 +2,14 @@ import 'package:fintrack/core/di/injector.dart' as di;
 import 'package:fintrack/core/theme/app_colors.dart';
 import 'package:fintrack/core/utils/size_utils.dart';
 
-import 'package:fintrack/features/add_transaction/presentation/page/add_transaction_page.dart';
-
+import 'package:fintrack/features/add_transaction/add_tx_injection.dart'
+    as add_tx_di;
 import 'package:fintrack/features/chart/presentation/bloc/chart_bloc.dart';
 import 'package:fintrack/features/chart/presentation/pages/chart_page.dart';
 import 'package:fintrack/features/home/presentation/bloc/home_bloc.dart';
 import 'package:fintrack/features/home/presentation/page/home_page.dart';
 import 'package:fintrack/features/navigation/bloc/bottom_bloc.dart';
+import 'package:fintrack/features/navigation/widgets/floating_menu_fab.dart';
 import 'package:fintrack/features/navigation/pages/bottom_nav_item.dart';
 import 'package:fintrack/features/setting/presentation/bloc/setting_bloc.dart';
 import 'package:fintrack/features/setting/presentation/pages/setting_page.dart';
@@ -81,22 +82,44 @@ class _BottombarPageState extends State<BottombarPage> {
             body: IndexedStack(index: _idx, children: _page),
             backgroundColor: AppColors.background,
 
-            floatingActionButton: FloatingActionButton(
-              shape: CircleBorder(),
-
-              backgroundColor: AppColors.main,
-              onPressed: () {
+            floatingActionButton: FloatingMenuFab(
+              onAddRegular: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const AddTransactionPage()),
+                  MaterialPageRoute(
+                    builder: (_) => add_tx_di.buildAddTransactionPage(),
+                  ),
                 );
               },
-
-              child: ImageIcon(
-                AssetImage("assets/icons/add_bottombar.png"),
-                size: 30,
-                color: AppColors.white,
-              ),
+              onQuickAdd: () {
+                Navigator.push<String>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => add_tx_di.buildTextTransactionPage(),
+                  ),
+                ).then((value) {
+                  final text = value?.trim();
+                  if (text == null || text.isEmpty) return;
+                  final preview = text.length > 60
+                      ? "${text.substring(0, 60)}..."
+                      : text;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Saved quick text: $preview'),
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+                });
+              },
+              onVoiceInput: () {
+                add_tx_di.ensureVoiceEntryRegistered();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => add_tx_di.buildVoiceTransactionPage(),
+                  ),
+                );
+              },
             ),
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.centerDocked,

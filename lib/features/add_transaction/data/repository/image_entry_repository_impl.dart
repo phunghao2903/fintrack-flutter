@@ -37,6 +37,28 @@ class ImageEntryRepositoryImpl implements ImageEntryRepository {
   }
 
   @override
+  Future<Either<Failure, TransactionEntity>> uploadText(
+    String text,
+    String userId,
+    List<MoneySourceEntity> moneySources,
+  ) async {
+    final serializedSources = moneySources
+        .map((e) => {'id': e.id, 'name': e.name})
+        .toList();
+
+    try {
+      final TransactionModel model = await remoteDataSource.uploadText(
+        text: text,
+        userId: userId,
+        moneySources: serializedSources,
+      );
+      return Right(model.toEntity());
+    } catch (e) {
+      return Left(Failure(e.toString()));
+    }
+  }
+
+  @override
   Future<void> syncIsIncomeIfNeeded(TransactionEntity tx) {
     return remoteDataSource.syncIsIncomeIfNeeded(tx);
   }

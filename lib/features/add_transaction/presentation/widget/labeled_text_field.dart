@@ -10,6 +10,10 @@ class LabeledTextField extends StatelessWidget {
   final bool required; // <--- thêm field này
   final String? errorText;
   final TextInputType keyboardType;
+  final int maxLines;
+  final int? minLines;
+  final bool autofocus;
+  final TextInputAction? textInputAction;
   final Widget? suffixIcon;
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;
@@ -20,6 +24,10 @@ class LabeledTextField extends StatelessWidget {
     required this.label,
     this.hint,
     this.readOnly = false,
+    this.maxLines = 1,
+    this.minLines,
+    this.autofocus = false,
+    this.textInputAction,
     this.keyboardType = TextInputType.text,
     this.suffixIcon,
     this.onTap,
@@ -39,6 +47,10 @@ class LabeledTextField extends StatelessWidget {
       keyboardType: keyboardType,
       cursorColor: AppColors.grey,
       style: TextStyle(color: AppColors.white),
+      maxLines: maxLines,
+      minLines: minLines,
+      autofocus: autofocus,
+      textInputAction: textInputAction,
       decoration: InputDecoration(
         hintText: hint,
         labelText: required ? "$label *" : label,
