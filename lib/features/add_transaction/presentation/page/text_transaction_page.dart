@@ -71,9 +71,9 @@ class _TextTransactionPageState extends State<TextTransactionPage> {
             ),
           );
         } else if (state is TextEntryFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       child: Scaffold(
@@ -96,9 +96,7 @@ class _TextTransactionPageState extends State<TextTransactionPage> {
                   vertical: h * 0.03,
                 ),
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight,
-                  ),
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
                   child: Column(
                     children: [
                       SizedBox(
@@ -135,8 +133,9 @@ class _TextTransactionPageState extends State<TextTransactionPage> {
                                   expands: true,
                                   autofocus: true,
                                   cursorColor: AppColors.grey,
-                                  style:
-                                      const TextStyle(color: AppColors.white),
+                                  style: const TextStyle(
+                                    color: AppColors.white,
+                                  ),
                                   textAlignVertical: TextAlignVertical.top,
                                   decoration: InputDecoration(
                                     hintText:
@@ -196,16 +195,12 @@ class _TextTransactionPageState extends State<TextTransactionPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed:
-                      isSubmitting ? null : () => _handleSave(context),
+                  onPressed: isSubmitting ? null : () => _handleSave(context),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'SAVE',
-                        style: AppTextStyles.body2,
-                      ),
+                      Text('SAVE', style: AppTextStyles.body2),
                       if (isSubmitting) ...[
                         const SizedBox(width: 10),
                         const SizedBox(

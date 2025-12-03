@@ -24,8 +24,10 @@ class VoiceTransactionPage extends StatefulWidget {
 
 class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
   final Random _random = Random();
-  final List<double> _waveformHeights =
-      List<double>.filled(36, 6); // placeholder bars
+  final List<double> _waveformHeights = List<double>.filled(
+    36,
+    6,
+  ); // placeholder bars
 
   final AudioRecorder _recorder = AudioRecorder();
   StreamSubscription<Amplitude>? _amplitudeSubscription;
@@ -91,9 +93,9 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Unable to start recording: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unable to start recording: $e')));
     }
   }
 
@@ -131,9 +133,9 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
       setState(() {
         _isRecording = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Unable to stop recording: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unable to stop recording: $e')));
     }
   }
 
@@ -142,20 +144,20 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
     _amplitudeSubscription = _recorder
         .onAmplitudeChanged(const Duration(milliseconds: 140))
         .listen((amp) {
-      if (!mounted) return;
-      final hasVoice = amp.current > _silenceThresholdDb;
-      if (hasVoice != _hasVoiceInput) {
-        setState(() {
-          _hasVoiceInput = hasVoice;
+          if (!mounted) return;
+          final hasVoice = amp.current > _silenceThresholdDb;
+          if (hasVoice != _hasVoiceInput) {
+            setState(() {
+              _hasVoiceInput = hasVoice;
+            });
+            if (!hasVoice) {
+              _flattenWaveform();
+            }
+          }
+          if (hasVoice) {
+            _updateWaveformFromAmplitude(amp.current);
+          }
         });
-        if (!hasVoice) {
-          _flattenWaveform();
-        }
-      }
-      if (hasVoice) {
-        _updateWaveformFromAmplitude(amp.current);
-      }
-    });
   }
 
   void _flattenWaveform() {
@@ -230,12 +232,12 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
       return;
     }
     blocContext.read<VoiceEntryBloc>().add(
-          UploadVoiceRequested(
-            transcript: transcript,
-            languageCode: _languageCode,
-            audioPath: audioPath,
-          ),
-        );
+      UploadVoiceRequested(
+        transcript: transcript,
+        languageCode: _languageCode,
+        audioPath: audioPath,
+      ),
+    );
     setState(() {
       _lastErrorMessage = null;
     });
@@ -266,9 +268,9 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
           setState(() {
             _lastErrorMessage = state.message;
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
           context.read<VoiceEntryBloc>().add(VoiceEntryReset());
         }
       },
@@ -359,8 +361,7 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
     return BlocBuilder<VoiceEntryBloc, VoiceEntryState>(
       builder: (context, state) {
         final bool isUploading = state is VoiceEntryUploading;
-        final bool showError =
-            _lastErrorMessage != null && !isUploading;
+        final bool showError = _lastErrorMessage != null && !isUploading;
         return Container(
           height: waveformHeight,
           width: w,
@@ -368,9 +369,7 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
           decoration: BoxDecoration(
             color: AppColors.widget,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              color: AppColors.main.withOpacity(0.35),
-            ),
+            border: Border.all(color: AppColors.main.withOpacity(0.35)),
             boxShadow: [
               BoxShadow(
                 color: AppColors.background.withOpacity(0.65),
@@ -478,9 +477,7 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 240),
                           child: _isRecording && _hasVoiceInput && !isUploading
-                              ? _ActiveWaveform(
-                                  heights: _waveformHeights,
-                                )
+                              ? _ActiveWaveform(heights: _waveformHeights)
                               : const _IdleWaveform(),
                         ),
                       ),
@@ -530,8 +527,8 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
         final String label = isUploading
             ? 'Uploading your audio...'
             : _isRecording
-                ? 'Tap to stop'
-                : 'Tap to start recording';
+            ? 'Tap to stop'
+            : 'Tap to start recording';
         final IconData icon = _isRecording ? Icons.stop : Icons.mic;
 
         return SafeArea(
@@ -550,40 +547,38 @@ class _VoiceTransactionPageState extends State<VoiceTransactionPage> {
               ),
               const SizedBox(height: 10),
               GestureDetector(
-                onTap: isUploading ? null : () => _toggleRecording(context, isUploading),
+                onTap: isUploading
+                    ? null
+                    : () => _toggleRecording(context, isUploading),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   height: 84,
                   width: 84,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color:
-                        isUploading ? AppColors.main.withOpacity(0.65) : AppColors.main,
+                    color: isUploading
+                        ? AppColors.main.withOpacity(0.65)
+                        : AppColors.main,
                     boxShadow: [
                       if (!isUploading)
                         BoxShadow(
-                          color:
-                              AppColors.main.withOpacity(_isRecording ? 0.45 : 0.28),
+                          color: AppColors.main.withOpacity(
+                            _isRecording ? 0.45 : 0.28,
+                          ),
                           blurRadius: _isRecording ? 30 : 16,
                           spreadRadius: _isRecording ? 6 : 2,
                         ),
                     ],
                   ),
                   child: Center(
-                    child: Icon(
-                      icon,
-                      color: AppColors.background,
-                      size: 34,
-                    ),
+                    child: Icon(icon, color: AppColors.background, size: 34),
                   ),
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 label,
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.grey,
-                ),
+                style: AppTextStyles.caption.copyWith(color: AppColors.grey),
               ),
             ],
           ),
@@ -633,10 +628,7 @@ class _LanguageChip extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              flag,
-              style: const TextStyle(fontSize: 16),
-            ),
+            Text(flag, style: const TextStyle(fontSize: 16)),
             const SizedBox(width: 8),
             Text(
               label,
@@ -700,8 +692,7 @@ class _IdleWaveform extends StatelessWidget {
         const double barWidth = 6;
         const double horizontalMargin = 3;
         final double totalBarWidth = barWidth + (horizontalMargin * 2);
-        final int computedBars =
-            (constraints.maxWidth / totalBarWidth).floor();
+        final int computedBars = (constraints.maxWidth / totalBarWidth).floor();
         final int barCount = computedBars > 0 ? computedBars.clamp(1, 48) : 1;
 
         return Row(
@@ -736,8 +727,7 @@ class _ActiveWaveform extends StatelessWidget {
         const double barWidth = 6;
         const double horizontalMargin = 3;
         final double totalBarWidth = barWidth + (horizontalMargin * 2);
-        final int computedBars =
-            (constraints.maxWidth / totalBarWidth).floor();
+        final int computedBars = (constraints.maxWidth / totalBarWidth).floor();
         final int barCount = computedBars > 0
             ? computedBars.clamp(1, heights.length)
             : 1;
@@ -751,8 +741,9 @@ class _ActiveWaveform extends StatelessWidget {
               ...visibleHeights.map(
                 (value) => AnimatedContainer(
                   duration: const Duration(milliseconds: 120),
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: horizontalMargin),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: horizontalMargin,
+                  ),
                   width: barWidth,
                   height: value.clamp(12, 120),
                   decoration: BoxDecoration(

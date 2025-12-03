@@ -144,8 +144,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           icon: "assets/icons/manual_entry.png",
                           text: "Manual Entry",
                           onTap: () => context.read<AddTxBloc>().add(
-                                AddTxTabChangedEvent(EntryTab.manual),
-                              ),
+                            AddTxTabChangedEvent(EntryTab.manual),
+                          ),
                         ),
                       ),
                       Expanded(
@@ -154,8 +154,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           icon: "assets/icons/image_entry.png",
                           text: "Image Entry",
                           onTap: () => context.read<AddTxBloc>().add(
-                                AddTxTabChangedEvent(EntryTab.image),
-                              ),
+                            AddTxTabChangedEvent(EntryTab.image),
+                          ),
                         ),
                       ),
                     ],
@@ -221,8 +221,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                           strokeWidth: 3,
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
-                                            AppColors.main,
-                                          ),
+                                                AppColors.main,
+                                              ),
                                         ),
                                       ),
                                     ),
@@ -243,25 +243,28 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             current is AddTxSubmitSuccess || current is AddTxError,
         listener: (context, state) {
           if (state is AddTxSubmitSuccess) {
-            final msg = state.isEdit ? 'Transaction updated' : 'Saved transaction';
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+            final msg = state.isEdit
+                ? 'Transaction updated'
+                : 'Saved transaction';
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(msg)));
             if (state.isEdit) {
               Navigator.pop(context, state.transaction);
             } else {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => TransactionDetailPage(
-                    transaction: state.transaction,
-                  ),
+                  builder: (_) =>
+                      TransactionDetailPage(transaction: state.transaction),
                 ),
               );
             }
           }
           if (state is AddTxError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.error)));
           }
         },
         builder: (context, state) {
@@ -276,8 +279,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               ? (baseState!.isEdit
                     ? 'Update transaction'
                     : baseState.type == TransactionType.expense
-                        ? 'Add Expense Transaction'
-                        : 'Add Income Transaction')
+                    ? 'Add Expense Transaction'
+                    : 'Add Income Transaction')
               : 'Select Image Now';
           final canSubmit = baseState != null && !isUploading;
           final isButtonBlocked = isLoading || !canSubmit;

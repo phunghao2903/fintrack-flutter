@@ -100,8 +100,9 @@ class _BottombarPageState extends State<BottombarPage> {
                 ).then((value) {
                   final text = value?.trim();
                   if (text == null || text.isEmpty) return;
-                  final preview =
-                      text.length > 60 ? "${text.substring(0, 60)}..." : text;
+                  final preview = text.length > 60
+                      ? "${text.substring(0, 60)}..."
+                      : text;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Saved quick text: $preview'),

@@ -124,8 +124,11 @@ class VoiceEntryRemoteDataSourceImpl implements VoiceEntryRemoteDataSource {
     if (value is DateTime) return value;
     if (value is Timestamp) return value.toDate();
     if (value is String) {
-      final withoutTz =
-          value.split('UTC').first.trim().replaceFirst(' at ', ' ');
+      final withoutTz = value
+          .split('UTC')
+          .first
+          .trim()
+          .replaceFirst(' at ', ' ');
       try {
         return DateFormat("MMMM d, yyyy hh:mm:ss a").parse(withoutTz);
       } catch (_) {

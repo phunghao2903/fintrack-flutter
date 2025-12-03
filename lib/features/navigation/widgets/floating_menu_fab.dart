@@ -155,8 +155,10 @@ class _FloatingMenuFabState extends State<FloatingMenuFab>
                       return FadeTransition(
                         opacity: animation,
                         child: ScaleTransition(
-                          scale: Tween<double>(begin: 0.9, end: 1.0)
-                              .animate(animation),
+                          scale: Tween<double>(
+                            begin: 0.9,
+                            end: 1.0,
+                          ).animate(animation),
                           child: child,
                         ),
                       );
@@ -247,9 +249,7 @@ class _RadialMenuOverlay extends StatelessWidget {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: onClose,
-              child: Container(
-                color: AppColors.background.withOpacity(0.6),
-              ),
+              child: Container(color: AppColors.background.withOpacity(0.6)),
             ),
           ),
           ...items.map(
@@ -319,10 +319,7 @@ class _RadialActionButton extends StatelessWidget {
           top: anchor.center.dy + offset.dy - diameter / 2,
           child: Opacity(
             opacity: animation.value,
-            child: Transform.translate(
-              offset: Offset(0, slide),
-              child: child,
-            ),
+            child: Transform.translate(offset: Offset(0, slide), child: child),
           ),
         );
       },
@@ -366,11 +363,7 @@ class _MenuActionButton extends StatelessWidget {
             child: SizedBox(
               height: diameter,
               width: diameter,
-              child: Icon(
-                icon,
-                color: AppColors.background,
-                size: 24,
-              ),
+              child: Icon(icon, color: AppColors.background, size: 24),
             ),
           ),
         ),
