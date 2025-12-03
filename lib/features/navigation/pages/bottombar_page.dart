@@ -4,8 +4,12 @@ import 'package:fintrack/core/utils/size_utils.dart';
 
 import 'package:fintrack/features/add_transaction/presentation/page/add_transaction_page.dart';
 import 'package:fintrack/features/add_transaction/presentation/page/text_transaction_page.dart';
+import 'package:fintrack/features/add_transaction/presentation/page/voice_transaction_page.dart';
 
+import 'package:fintrack/features/add_transaction/add_tx_injection.dart'
+    as add_tx_di;
 import 'package:fintrack/features/add_transaction/presentation/bloc/text_entry_bloc.dart';
+import 'package:fintrack/features/add_transaction/presentation/bloc/voice_entry_bloc.dart';
 import 'package:fintrack/features/chart/presentation/bloc/chart_bloc.dart';
 import 'package:fintrack/features/chart/presentation/pages/chart_page.dart';
 import 'package:fintrack/features/home/presentation/bloc/home_bloc.dart';
@@ -116,10 +120,14 @@ class _BottombarPageState extends State<BottombarPage> {
                 });
               },
               onVoiceInput: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Voice Input coming soon'),
-                    duration: Duration(milliseconds: 800),
+                add_tx_di.ensureVoiceEntryRegistered();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BlocProvider<VoiceEntryBloc>(
+                      create: (_) => di.sl<VoiceEntryBloc>(),
+                      child: const VoiceTransactionPage(),
+                    ),
                   ),
                 );
               },
