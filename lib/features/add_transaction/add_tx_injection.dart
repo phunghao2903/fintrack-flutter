@@ -44,7 +44,7 @@ import 'presentation/page/voice_transaction_page.dart';
 
 final sl = GetIt.instance;
 const String _addTxWebhookUrl =
-    // 'https://n8n-vietnam.id.vn/webhook/91a3525b-d6cb-4f2d-9e9a-d89cd871bcd3';
+    // 'https://n8n-vietnam.id.vn/webhook-test/588768f1-8a5d-4ea2-8f85-94ca49b81f8a';
     'https://n8n-vietnam.id.vn/webhook/588768f1-8a5d-4ea2-8f85-94ca49b81f8a';
 
 Future<void> initAddTransaction() async {
