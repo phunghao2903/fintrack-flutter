@@ -14,5 +14,8 @@ abstract class AddTxRepository {
     required TransactionEntity oldTx,
     required TransactionEntity newTx,
   });
-  Future<void> updateBudgetsWithTransaction(TransactionEntity tx);
+  Future<void> updateBudgetsWithTransaction(
+    TransactionEntity tx, {
+    bool revert = false,
+  });
 }

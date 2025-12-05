@@ -6,7 +6,10 @@ class UpdateBudgetsWithTransactionUsecase {
 
   UpdateBudgetsWithTransactionUsecase(this.repository);
 
-  Future<void> call(TransactionEntity tx) {
-    return repository.updateBudgetsWithTransaction(tx);
+  Future<void> call(
+    TransactionEntity tx, {
+    bool revert = false,
+  }) {
+    return repository.updateBudgetsWithTransaction(tx, revert: revert);
   }
 }

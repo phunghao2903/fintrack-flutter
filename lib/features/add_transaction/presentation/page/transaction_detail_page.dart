@@ -46,6 +46,7 @@ class _TransactionDetailPageState extends State<TransactionDetailPage> {
       create: (_) => TransactionDetailBloc(
         deleteTx: sl(),
         getMoneySourceById: sl(),
+        updateBudgetsWithTransaction: sl(),
         initialState: TransactionDetailState(
           transaction: transaction,
           moneySource: transaction.moneySource,

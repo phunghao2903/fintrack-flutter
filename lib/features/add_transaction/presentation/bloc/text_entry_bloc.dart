@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:fintrack/features/add_transaction/domain/entities/money_source_entity.dart';
+import 'package:fintrack/features/add_transaction/domain/entities/transaction_entity.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/change_money_source_balance_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/get_money_sources_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/sync_is_income_usecase.dart';
@@ -41,6 +43,10 @@ class TextEntryBloc extends Bloc<TextEntryEvent, TextEntryState> {
     emit(TextEntrySubmitting());
     try {
       final moneySources = await getMoneySourcesUsecase();
+      if (moneySources.isEmpty) {
+        emit(TextEntryFailure('No money source available'));
+        return;
+      }
 
       final result = await uploadTextUsecase(
         text: event.text,
@@ -51,18 +57,57 @@ class TextEntryBloc extends Bloc<TextEntryEvent, TextEntryState> {
       await result.fold<Future<void>>(
         (failure) async => emit(TextEntryFailure(failure.message)),
         (tx) async {
+          final normalizedTx = _normalizeMoneySource(tx, moneySources);
           await changeMoneySourceBalanceUsecase(
-            moneySourceId: tx.moneySource.id,
-            amount: tx.amount,
-            isIncome: tx.isIncome,
+            moneySourceId: normalizedTx.moneySource.id,
+            amount: normalizedTx.amount,
+            isIncome: normalizedTx.isIncome,
           );
-          await updateBudgetsWithTransactionUsecase(tx);
-          await syncIsIncomeUseCase(tx);
-          emit(TextEntrySuccess(tx));
+          if (!normalizedTx.isIncome) {
+            await updateBudgetsWithTransactionUsecase(normalizedTx);
+            await syncIsIncomeUseCase(normalizedTx);
+          }
+          emit(TextEntrySuccess(normalizedTx));
         },
       );
     } catch (e) {
       emit(TextEntryFailure(e.toString()));
     }
+  }
+
+  // Ensure the transaction references an existing money source to avoid
+  // Firestore not-found errors when updating balances.
+  TransactionEntity _normalizeMoneySource(
+    TransactionEntity tx,
+    List<MoneySourceEntity> availableSources,
+  ) {
+    final resolvedSource = _matchMoneySource(tx.moneySource, availableSources);
+    if (resolvedSource.id == tx.moneySource.id) return tx;
+
+    return TransactionEntity(
+      id: tx.id,
+      amount: tx.amount,
+      dateTime: tx.dateTime,
+      merchant: tx.merchant,
+      category: tx.category,
+      moneySource: resolvedSource,
+      isIncome: tx.isIncome,
+    );
+  }
+
+  MoneySourceEntity _matchMoneySource(
+    MoneySourceEntity incoming,
+    List<MoneySourceEntity> availableSources,
+  ) {
+    for (final ms in availableSources) {
+      if (ms.id == incoming.id) return ms;
+    }
+
+    final incomingName = incoming.name.trim().toLowerCase();
+    for (final ms in availableSources) {
+      if (ms.name.trim().toLowerCase() == incomingName) return ms;
+    }
+
+    return availableSources.first;
   }
 }

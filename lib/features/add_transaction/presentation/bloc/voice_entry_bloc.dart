@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:fintrack/features/add_transaction/domain/entities/money_source_entity.dart';
+import 'package:fintrack/features/add_transaction/domain/entities/transaction_entity.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/change_money_source_balance_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/get_money_sources_usecase.dart';
 import 'package:fintrack/features/add_transaction/domain/usecases/sync_is_income_usecase.dart';
@@ -42,6 +44,10 @@ class VoiceEntryBloc extends Bloc<VoiceEntryEvent, VoiceEntryState> {
     emit(VoiceEntryUploading());
     try {
       final moneySources = await getMoneySourcesUsecase();
+      if (moneySources.isEmpty) {
+        emit(VoiceEntryFailure('No money source available'));
+        return;
+      }
 
       final result = await uploadVoiceUsecase(
         transcript: event.transcript,
@@ -54,14 +60,17 @@ class VoiceEntryBloc extends Bloc<VoiceEntryEvent, VoiceEntryState> {
       await result.fold<Future<void>>(
         (failure) async => emit(VoiceEntryFailure(failure.message)),
         (tx) async {
+          final normalizedTx = _normalizeIncomeMoneySource(tx, moneySources);
           await changeMoneySourceBalanceUsecase(
-            moneySourceId: tx.moneySource.id,
-            amount: tx.amount,
-            isIncome: tx.isIncome,
+            moneySourceId: normalizedTx.moneySource.id,
+            amount: normalizedTx.amount,
+            isIncome: normalizedTx.isIncome,
           );
-          await updateBudgetsWithTransactionUsecase(tx);
-          await syncIsIncomeUseCase(tx);
-          emit(VoiceEntrySuccess(tx));
+          if (!normalizedTx.isIncome) {
+            await updateBudgetsWithTransactionUsecase(normalizedTx);
+            await syncIsIncomeUseCase(normalizedTx);
+          }
+          emit(VoiceEntrySuccess(normalizedTx));
         },
       );
     } catch (e) {
@@ -71,5 +80,47 @@ class VoiceEntryBloc extends Bloc<VoiceEntryEvent, VoiceEntryState> {
 
   void _onReset(VoiceEntryReset event, Emitter<VoiceEntryState> emit) {
     emit(VoiceEntryInitial());
+  }
+
+  // For income entries from n8n, fall back to an existing money source so we
+  // don't try to update a Firestore doc that isn't there.
+  TransactionEntity _normalizeIncomeMoneySource(
+    TransactionEntity tx,
+    List<MoneySourceEntity> availableSources,
+  ) {
+    if (!tx.isIncome) return tx;
+
+    final resolvedSource = _matchMoneySource(tx.moneySource, availableSources);
+    if (resolvedSource.id == tx.moneySource.id) return tx;
+
+    return TransactionEntity(
+      id: tx.id,
+      amount: tx.amount,
+      dateTime: tx.dateTime,
+      merchant: tx.merchant,
+      category: tx.category,
+      moneySource: resolvedSource,
+      isIncome: tx.isIncome,
+    );
+  }
+
+  MoneySourceEntity _matchMoneySource(
+    MoneySourceEntity incoming,
+    List<MoneySourceEntity> availableSources,
+  ) {
+    if (availableSources.isEmpty) {
+      throw Exception('No money source available for current user');
+    }
+
+    for (final ms in availableSources) {
+      if (ms.id == incoming.id) return ms;
+    }
+
+    final incomingName = incoming.name.trim().toLowerCase();
+    for (final ms in availableSources) {
+      if (ms.name.trim().toLowerCase() == incomingName) return ms;
+    }
+
+    return availableSources.first;
   }
 }

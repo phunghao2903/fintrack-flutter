@@ -24,28 +24,52 @@ class AccountItem extends StatelessWidget {
           color: AppColors.widget,
           borderRadius: BorderRadius.circular(15),
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: w * 0.03,
-            vertical: h * 0.02,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image.asset(moneySource.icon),
-              SizedBox(height: h * 0.01),
-              Text(
-                // '\$${moneySource.balance.toStringAsFixed(2)}',
-                CurrencyFormatter.formatVNDWithCurrency(moneySource.balance),
-                style: AppTextStyles.body1.copyWith(color: AppColors.white),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final iconSize = constraints.maxHeight * 0.35;
+            final gap = constraints.maxHeight * 0.06;
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: w * 0.03,
+                vertical: h * 0.02,
               ),
-              SizedBox(height: h * 0.01),
-              Text(
-                moneySource.name,
-                style: AppTextStyles.caption.copyWith(color: AppColors.grey),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: iconSize,
+                    width: iconSize,
+                    child: Image.asset(
+                      moneySource.icon,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  SizedBox(height: gap),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      CurrencyFormatter.formatVNDWithCurrency(
+                        moneySource.balance,
+                      ),
+                      style:
+                          AppTextStyles.body1.copyWith(color: AppColors.white),
+                    ),
+                  ),
+                  SizedBox(height: gap * 0.6),
+                  Flexible(
+                    child: Text(
+                      moneySource.name,
+                      style:
+                          AppTextStyles.caption.copyWith(color: AppColors.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

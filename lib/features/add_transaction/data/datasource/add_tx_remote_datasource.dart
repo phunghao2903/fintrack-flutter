@@ -14,7 +14,10 @@ abstract class AddTxRemoteDataSource {
     required TransactionModel oldModel,
     required TransactionModel newModel,
   });
-  Future<void> updateBudgetsWithTransaction(TransactionModel model);
+  Future<void> updateBudgetsWithTransaction(
+    TransactionModel model, {
+    bool revert = false,
+  });
 }
 
 class AddTxRemoteDataSourceImpl implements AddTxRemoteDataSource {
@@ -137,7 +140,10 @@ class AddTxRemoteDataSourceImpl implements AddTxRemoteDataSource {
   }
 
   @override
-  Future<void> updateBudgetsWithTransaction(TransactionModel model) async {
+  Future<void> updateBudgetsWithTransaction(
+    TransactionModel model, {
+    bool revert = false,
+  }) async {
     if (model.isIncome) return;
 
     final user = auth.currentUser;
@@ -166,7 +172,8 @@ class AddTxRemoteDataSourceImpl implements AddTxRemoteDataSource {
         currentSpent = 0;
       }
 
-      final newSpent = currentSpent + model.amount;
+      final delta = revert ? -model.amount : model.amount;
+      final newSpent = currentSpent + delta;
 
       await doc.reference.update({'spent': newSpent});
     }
