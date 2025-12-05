@@ -286,7 +286,10 @@ class AddTxBloc extends Bloc<AddTxEvent, AddTxState> {
           isIncome: isIncome,
         );
 
+        // Update the transaction and adjust budgets accordingly.
         await updateTx(oldTx: oldTx, newTx: updatedTx);
+        await updateBudgets(oldTx, revert: true);
+        await updateBudgets(updatedTx);
 
         emit(
           AddTxSubmitSuccess(
