@@ -60,7 +60,7 @@ class VoiceEntryBloc extends Bloc<VoiceEntryEvent, VoiceEntryState> {
       await result.fold<Future<void>>(
         (failure) async => emit(VoiceEntryFailure(failure.message)),
         (tx) async {
-          final normalizedTx = _normalizeIncomeMoneySource(tx, moneySources);
+          final normalizedTx = _normalizeMoneySource(tx, moneySources);
           await changeMoneySourceBalanceUsecase(
             moneySourceId: normalizedTx.moneySource.id,
             amount: normalizedTx.amount,
@@ -68,8 +68,8 @@ class VoiceEntryBloc extends Bloc<VoiceEntryEvent, VoiceEntryState> {
           );
           if (!normalizedTx.isIncome) {
             await updateBudgetsWithTransactionUsecase(normalizedTx);
-            await syncIsIncomeUseCase(normalizedTx);
           }
+          await syncIsIncomeUseCase(normalizedTx);
           emit(VoiceEntrySuccess(normalizedTx));
         },
       );
@@ -82,14 +82,12 @@ class VoiceEntryBloc extends Bloc<VoiceEntryEvent, VoiceEntryState> {
     emit(VoiceEntryInitial());
   }
 
-  // For income entries from n8n, fall back to an existing money source so we
-  // don't try to update a Firestore doc that isn't there.
-  TransactionEntity _normalizeIncomeMoneySource(
+  // Always align the returned money source with an existing one to avoid
+  // Firestore not-found errors when updating balances.
+  TransactionEntity _normalizeMoneySource(
     TransactionEntity tx,
     List<MoneySourceEntity> availableSources,
   ) {
-    if (!tx.isIncome) return tx;
-
     final resolvedSource = _matchMoneySource(tx.moneySource, availableSources);
     if (resolvedSource.id == tx.moneySource.id) return tx;
 
