@@ -65,8 +65,8 @@ class TextEntryBloc extends Bloc<TextEntryEvent, TextEntryState> {
           );
           if (!normalizedTx.isIncome) {
             await updateBudgetsWithTransactionUsecase(normalizedTx);
-            await syncIsIncomeUseCase(normalizedTx);
           }
+          await syncIsIncomeUseCase(normalizedTx);
           emit(TextEntrySuccess(normalizedTx));
         },
       );
@@ -99,6 +99,10 @@ class TextEntryBloc extends Bloc<TextEntryEvent, TextEntryState> {
     MoneySourceEntity incoming,
     List<MoneySourceEntity> availableSources,
   ) {
+    if (availableSources.isEmpty) {
+      throw Exception('No money source available for current user');
+    }
+
     for (final ms in availableSources) {
       if (ms.id == incoming.id) return ms;
     }

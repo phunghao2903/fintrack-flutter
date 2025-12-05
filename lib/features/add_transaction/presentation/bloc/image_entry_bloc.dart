@@ -63,8 +63,8 @@ class ImageEntryBloc extends Bloc<ImageEntryEvent, ImageEntryState> {
           );
           if (!normalizedTx.isIncome) {
             await updateBudgetsWithTransactionUsecase(normalizedTx);
-            await syncIsIncomeUseCase(normalizedTx);
           }
+          await syncIsIncomeUseCase(normalizedTx);
           emit(ImageEntryUploadSuccess(normalizedTx));
         },
       );
@@ -97,6 +97,10 @@ class ImageEntryBloc extends Bloc<ImageEntryEvent, ImageEntryState> {
     MoneySourceEntity incoming,
     List<MoneySourceEntity> availableSources,
   ) {
+    if (availableSources.isEmpty) {
+      throw Exception('No money source available for current user');
+    }
+
     for (final ms in availableSources) {
       if (ms.id == incoming.id) return ms;
     }
