@@ -52,8 +52,10 @@ class ImageEntryBloc extends Bloc<ImageEntryEvent, ImageEntryState> {
             return;
           }
 
-          final normalizedTx =
-              _normalizeMoneySource(tx, event.moneySources.toList());
+          final normalizedTx = _normalizeMoneySource(
+            tx,
+            event.moneySources.toList(),
+          );
           await changeMoneySourceBalanceUsecase(
             moneySourceId: normalizedTx.moneySource.id,
             amount: normalizedTx.amount,

@@ -39,10 +39,7 @@ class AccountItem extends StatelessWidget {
                   SizedBox(
                     height: iconSize,
                     width: iconSize,
-                    child: Image.asset(
-                      moneySource.icon,
-                      fit: BoxFit.contain,
-                    ),
+                    child: Image.asset(moneySource.icon, fit: BoxFit.contain),
                   ),
                   SizedBox(height: gap),
                   FittedBox(
@@ -52,16 +49,18 @@ class AccountItem extends StatelessWidget {
                       CurrencyFormatter.formatVNDWithCurrency(
                         moneySource.balance,
                       ),
-                      style:
-                          AppTextStyles.body1.copyWith(color: AppColors.white),
+                      style: AppTextStyles.body1.copyWith(
+                        color: AppColors.white,
+                      ),
                     ),
                   ),
                   SizedBox(height: gap * 0.6),
                   Flexible(
                     child: Text(
                       moneySource.name,
-                      style:
-                          AppTextStyles.caption.copyWith(color: AppColors.grey),
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.grey,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
