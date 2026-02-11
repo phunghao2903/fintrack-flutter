@@ -8,6 +8,7 @@ abstract class MoneySourceRemoteDataSource {
   Future<void> updateMoneySource(String uid, MoneySourceEntity entity);
   Future<void> deleteMoneySource(String uid, String id);
   Future<bool> hasMoneySources(String uid);
+  
 }
 
 class MoneySourceRemoteDataSourceImpl implements MoneySourceRemoteDataSource {
