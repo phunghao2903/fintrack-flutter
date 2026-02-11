@@ -33,6 +33,15 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Secrets / local config
+.env
+.env.*
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
+firebase.json
+lib/features/n8n/TESt-add-transaction-Hao.json
+
 # Symbolication related
 app.*.symbols
 
