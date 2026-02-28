@@ -1,9 +1,11 @@
 import 'dart:ui';
 
 import 'package:fintrack/core/di/injector.dart' as di;
+import 'package:fintrack/core/services/notification_service.dart';
 import 'package:fintrack/features/add_transaction/presentation/page/add_transaction_page.dart';
 
 import 'package:fintrack/features/auth/presentation/page/sign_in_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
@@ -15,7 +17,18 @@ void main() async {
 
   // Khởi tạo Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  final token = await FirebaseMessaging.instance.getToken();
+  print('FCM Token: $token');
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  print('[onMessage] title=${message.notification?.title}, body=${message.notification?.body}');
+  print('[onMessage] data=${message.data}');
+});
 
+  FirebaseMessaging.instance.requestPermission() ;
+  await  NotificationService.instance.init(); 
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    NotificationService.instance.showForegroundNotification(message);
+  });
   await di.init();
   runApp(const MyApp());
 
